@@ -28,3 +28,6 @@
 	g++ $< -g -o $@  -lricxfcpp -lrmr_si -lpthread -lm -lsdl
 
 all:: ts_xapp
+
+install::
+	cp ts_xapp /usr/local/bin/

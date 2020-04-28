@@ -98,7 +98,7 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   fprintf(stderr, "cb 2");
   
   send_payload = msg->Get_payload(); // direct access to payload
-  snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\" : [\"222\", \"333\", \"444\"]}", i );	
+  snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\" : [\"222\", \"333\", \"444\"]}" );	
 
   fprintf(stderr, "cb 3");    
   

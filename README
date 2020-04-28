@@ -16,7 +16,6 @@
    limitations under the License.
 ==================================================================================
 
-xAPP C++ Framework
+Traffic Steering
 
-This repository contains a "framework" on which C++ RIC applications (xAPPs)
-can be built.
+This repository contains the source for the RIC traffic steering application.
