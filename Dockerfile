@@ -68,11 +68,15 @@ RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/down
 
 
 #
-# build and install the application
+# build and install the application(s)
 #
-COPY examples/* /playpen/src/
-RUN cd /playpen/src && make && make install
-
+COPY . /playpen/src/
+RUN cd /playpen/src && \
+	rm -fr .build &&\
+	mkdir  .build && \
+	cd .build && \
+	cmake .. && \
+	make install
 
 # non-programme things that we need to push to final image
 #
@@ -110,9 +114,9 @@ WORKDIR /data
 COPY --from=buildenv /playpen/assets/* /data
 
 # if needed, set RMR vars
-#ENV RMR_RTG_SVC=rm-host:port
-#ENV RMR_VCTL_FILE=/tmp/rmr.v
 ENV RMR_SEED_RT=/data/bootstrap.rt
+#ENV RMR_RTG_SVC=rm-host:port
+ENV RMR_VCTL_FILE=/tmp/rmr.v
+RUN echo "2" >/tmp/rmr.v
 
-#CMD [ "ts_xapp_start.sh" ]
 CMD [ "/usr/local/bin/ts_xapp" ]

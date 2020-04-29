@@ -98,13 +98,13 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   fprintf(stderr, "cb 2");
   
   send_payload = msg->Get_payload(); // direct access to payload
-  snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\" : [\"222\", \"333\", \"444\"]}", i );	
+  snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\" : [\"222\", \"333\", \"444\"]}" );	
 
   fprintf(stderr, "cb 3");    
   
   // payload updated in place, nothing to copy from, so payload parm is nil
   if ( ! msg->Send_msg( mtype, Message::NO_SUBID, strlen( (char *) send_payload.get() )+1, NULL )) {
-    fprintf( stderr, "<SNDR> send failed: %d\n", i );
+    fprintf( stderr, "<SNDR> send failed: %d\n", msg->Get_state() );
   }
 
   fprintf(stderr, "cb 4");    
@@ -163,7 +163,7 @@ extern int main( int argc, char** argv ) {
 
   int delay = 1000000;				// mu-sec delay; default 1s  
 
-  char*	port = (char *) "4555";
+  char*	port = (char *) "4560";
 
   int ai;  
   

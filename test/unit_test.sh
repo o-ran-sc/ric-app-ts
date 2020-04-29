@@ -63,18 +63,24 @@ spew="cat"					# default to dumping all make output on failure (-q turns it to ~
 while [[ $1 == "-"* ]]
 do
 	case $1 in
-		-q) spew="head -40";;
+		-q) spew="head -40";;		# how much to dump on build error
 		-v)	spew="cat";;
 	esac
 
 	shift
 done
 
+if [[ ! -f unit_test.cpp ]]
+then
+	echo "[PASS] no unit test source exists"
+	exit 0
+fi
+
 make nuke >/dev/null
 make unit_test >/tmp/PID$$.log 2>&1
 abort_if_error $? "unable to make"
 
-spew="cat"
+spew="cat"									# after we build, dump everything on error
 ./unit_test >/tmp/PID$$.log 2>&1
 abort_if_error $? "unit test failed"
 
