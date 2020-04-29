@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf794068_d0520c77",
+        "filename": "Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-29T21:09:32Z",
+      "side": 1,
+      "message": "please update to latest bldr-ubuntu18-c-go tag which is 8-u18.04",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 8
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35bf7542_e1247bea",
+        "filename": "Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-29T21:09:32Z",
+      "side": 1,
+      "message": "this looks wrong, that\u0027s on Alpine; ubuntu uses /usr/local/lib",
+      "range": {
+        "startLine": 109,
+        "startChar": 20,
+        "endLine": 109,
+        "endChar": 36
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5ef0453_f3fe230d",
+        "filename": "docs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-29T21:09:32Z",
+      "side": 1,
+      "message": "ummmmm .....",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 1
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f44d98f_2497a826",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-29T21:09:32Z",
+      "side": 1,
+      "message": "verify.  not scrape.",
+      "range": {
+        "startLine": 6,
+        "startChar": 51,
+        "endLine": 6,
+        "endChar": 59
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
