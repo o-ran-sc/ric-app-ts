@@ -1,0 +1,5 @@
+---
+tag: '1.0.0'
+
+# this is used by CI jobs to apply a tag when it builds the image
+

@@ -1,8 +1,8 @@
-# vim: sw=4 ts=4 noet:
-#
+# vim: ts=4 sw=4 noet:
+
 #==================================================================================
-#   Copyright (c) 2020 Nokia
-#   Copyright (c) 2020 AT&T Intellectual Property.
+#	Copyright (c) 2020 Nokia
+#	Copyright (c) 2020 AT&T Intellectual Property.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -16,32 +16,18 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #==================================================================================
-#
 
+# simple makefile to build the examples. This assumes that the xapp framework
+# library has been installed or the LD_LIBRARY_PATH and C_INCLUDE_PATH environent
+# variables are set to reference the needed files.
 
-# For clarity: this generates object, not a lib as the CM command implies.
-#
-add_library( message_objects OBJECT
-	callback.cpp  	
-	default_cb.cpp
-	message.cpp
-	messenger.cpp
-)
+%.o:: %.cpp %.hpp
+	g++ -g ${prereq%% *} -c 
 
-target_include_directories (message_objects PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>
-	PRIVATE src)
+% :: %.cpp
+	g++ $< -g -o $@  -lricxfcpp -lrmr_si -lpthread -lm -lsdl
 
-# header files should go into .../include/xfcpp/
-if( DEV_PKG )
-	install( FILES
-		callback.hpp  
-		default_cb.hpp  
-		message.hpp  
-		messenger.hpp
-		msg_component.hpp
-		DESTINATION ${install_inc}
-	) 
-endif()
+all:: ts_xapp
 
+install::
+	cp ts_xapp /usr/local/bin/
