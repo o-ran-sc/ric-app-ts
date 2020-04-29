@@ -29,10 +29,9 @@
 #	Author:		E. Scott Daniels
 # --------------------------------------------------------------------------------------
 
-# nexus seems to use ports rather than adding release, prod, staging to the url :(
 # the builder has: git, wget, cmake, gcc/g++, make, python2/3. v7 dropped nng support
 #
-FROM nexus3.o-ran-sc.org:10004/bldr-ubuntu18-c-go:7-u18.04 as buildenv
+FROM nexus3.o-ran-sc.org:10004/o-ran-sc/bldr-ubuntu18-c-go:8-u18.04 as buildenv
 
 # spaces to save things in the build image to copy to final image
 RUN mkdir -p /playpen/assets /playpen/src /playpen/bin
@@ -68,11 +67,15 @@ RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/down
 
 
 #
-# build and install the application
+# build and install the application(s)
 #
-COPY examples/* /playpen/src/
-RUN cd /playpen/src && make && make install
-
+COPY . /playpen/src/
+RUN cd /playpen/src && \
+	rm -fr .build &&\
+	mkdir  .build && \
+	cd .build && \
+	cmake .. && \
+	make install
 
 # non-programme things that we need to push to final image
 #
@@ -110,9 +113,9 @@ WORKDIR /data
 COPY --from=buildenv /playpen/assets/* /data
 
 # if needed, set RMR vars
-#ENV RMR_RTG_SVC=rm-host:port
-#ENV RMR_VCTL_FILE=/tmp/rmr.v
 ENV RMR_SEED_RT=/data/bootstrap.rt
+#ENV RMR_RTG_SVC=rm-host:port
+ENV RMR_VCTL_FILE=/tmp/rmr.v
+RUN echo "2" >/tmp/rmr.v
 
-#CMD [ "ts_xapp_start.sh" ]
 CMD [ "/usr/local/bin/ts_xapp" ]

@@ -1,10 +1,7 @@
-# vim: sw=4 ts=4 noet:
-#
 #==================================================================================
-#   Copyright (c) 2020 Nokia
-#   Copyright (c) 2020 AT&T Intellectual Property.
+#	Copyright (c) 2020 AT&T Intellectual Property.
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
+#   Licensed under the Apache License, Version 2.0 (the "License"),
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
 #
@@ -18,23 +15,11 @@
 #==================================================================================
 #
 
+add_executable( ts_xapp ts_xapp.cpp )
+target_link_libraries( ts_xapp ricxfcpp;rmr_si;sdl;pthread )
 
-# For clarity: this generates object, not a lib as the CM command implies.
-#
-add_library( xapp_objects OBJECT
-	xapp.cpp  	
+install( 
+    TARGETS ts_xapp
+    DESTINATION ${install_bin}
 )
-
-target_include_directories (xapp_objects PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:include>
-	PRIVATE src)
-
-# header files should go into .../include/xfcpp/
-if( DEV_PKG )
-	install( FILES
-		xapp.hpp  
-		DESTINATION ${install_inc}
-	) 
-endif()
 
