@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "99ba0821_fc8ac71b",
+        "filename": "Dockerfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T13:25:55Z",
+      "side": 1,
+      "message": "This is where the SDL libraries install.  For RMR I figured out how to get CMake to drop them in the \"expected\" place for the distro, but it seems that SDL didn\u0027t do that.  I don\u0027t have the time to look at their code, so we get this.",
+      "parentUuid": "35bf7542_e1247bea",
+      "range": {
+        "startLine": 109,
+        "startChar": 20,
+        "endLine": 109,
+        "endChar": 36
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5ef0453_f3fe230d",
         "filename": "docs/index.rst",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "c88815e8_4655351b",
+        "filename": "docs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T13:25:55Z",
+      "side": 1,
+      "message": "Ok, I\u0027ll remove my opinion, but this syntax is maddening.   \"..\" is a comment, yet \".. toctree::\"  is actually interpreted -- HUGE fail in my humble opinion, but I guess we\u0027ve all overloaded the code at times to make it work for us.",
+      "parentUuid": "a5ef0453_f3fe230d",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 1
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f44d98f_2497a826",
         "filename": "tox.ini",
         "patchSetId": 2
@@ -91,6 +139,30 @@
       "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6a97859_b23777fe",
+        "filename": "tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T13:25:55Z",
+      "side": 1,
+      "message": "Oh, thanks.",
+      "parentUuid": "3f44d98f_2497a826",
+      "range": {
+        "startLine": 6,
+        "startChar": 51,
+        "endLine": 6,
+        "endChar": 59
+      },
+      "revId": "d413163df2801f07caede3260aba562b5d34d9f1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
