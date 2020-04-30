@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbbbbe82_1e9f1cd2",
+        "filename": "Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-30T17:49:51Z",
+      "side": 1,
+      "message": "if you want small, don\u0027t use ubuntu.  what do you really need?  is a scratch image a candidate?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 3
+      },
+      "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4a238b2_b00cd50f",
+        "filename": "Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-04-30T17:49:51Z",
+      "side": 1,
+      "message": "don\u0027t copy all of /usr/lib!!",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 2
+      },
+      "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
