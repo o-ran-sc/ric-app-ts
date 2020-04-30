@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f145bff8_8a1008ef",
+        "filename": "Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T18:10:46Z",
+      "side": 1,
+      "message": "Right; not in a position to make that call just yet since I don\u0027t know exactly what is needed.  I think scratch and a copy from /usr/local will do, but I can\u0027t say for sure.  Need something for testing first.",
+      "parentUuid": "cbbbbe82_1e9f1cd2",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 3
+      },
+      "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5e8dbb8c_04c8dbc4",
         "filename": "Dockerfile",
         "patchSetId": 4
@@ -68,6 +92,30 @@
       "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c108614a_405f1712",
+        "filename": "Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T18:10:46Z",
+      "side": 1,
+      "message": "Odd I thought I removed both of those lines.",
+      "parentUuid": "5e8dbb8c_04c8dbc4",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 1
+      },
+      "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -114,6 +162,30 @@
       "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccd3ca12_4c8a7f50",
+        "filename": "Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-04-30T18:10:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bca9a78e_3825c041",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 1
+      },
+      "revId": "f7b9695ecc2b3ec3fff0af300f0588ead4b7ba0f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
