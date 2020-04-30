@@ -90,8 +90,6 @@ COPY assets/bootstrap.rt /playpen/assets
 # -----  create final, smaller, image ----------------------------------
 FROM ubuntu:18.04
 
-# if bash doesn't cut it for something, grab ksh, then clean up as much as possible
-#RUN apt-get update; apt-get install -y ksh
 RUN rm -fr /var/lib/apt/lists
 
 # snarf the various sdl, rmr, and cpp-framework libraries as well as any binaries
@@ -99,15 +97,12 @@ RUN rm -fr /var/lib/apt/lists
 #
 COPY --from=buildenv /usr/local/lib /usr/local/lib/
 COPY --from=buildenv /usr/local/bin/rmr_probe /usr/local/bin/ts_xapp /usr/local/bin/
-COPY --from=buildenv /usr/lib /usr/lib/
 COPY --from=buildenv /playpen/bin /usr/local/bin/
 COPY --from=buildenv /playpen/assets /data
 
 
 ENV PATH=/usr/local/bin:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib64:/usr/local/lib
-
-#ENV RMR_SEED_RT="routes.txt"
 
 WORKDIR /data
 COPY --from=buildenv /playpen/assets/* /data
