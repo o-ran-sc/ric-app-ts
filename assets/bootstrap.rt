@@ -1,8 +1,6 @@
 # bootstrap route table
 
 newrt | start
-rte | 20011 | service-ricplt-a1mediator-rmr:4562
-
-# what is TS_UE_LIST's value?
-#rte | TS_UE_LIST | service-ricxapp-qpd:4560
+mse | 20011 | -1 | service-ricplt-a1mediator-rmr:4562
+mse | 30000 | -1 | service-ricxapp-qpd:4560
 newrt | end
