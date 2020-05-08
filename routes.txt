@@ -1,6 +1,4 @@
 newrt|start
-mse|20010|20008|4560
 rte|20011|service-ricplt-a1mediator-rmr:10000
-rte|TS_QUE_PREDICTION|4560
-rte|TS_UE_LIST|service-ricxapp-qpd:4560
+rte|30000|service-ricxapp-qpdriver.ricxapp.svc.cluster.local:4562
 newrt|end

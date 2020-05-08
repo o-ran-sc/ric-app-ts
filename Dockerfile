@@ -40,7 +40,7 @@ ARG SRC=.
 WORKDIR /playpen
 
 # versions we snarf from package cloud
-ARG RMR_VER=4.0.2
+ARG RMR_VER=4.0.5
 ARG SDL_VER=1.0.4
 ARG XFCPP_VER=1.0.0
 
@@ -64,6 +64,16 @@ RUN apt-get install -y libboost-filesystem1.65.1 libboost-system1.65.1 libhiredi
 RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
 	wget -nv --content-disposition ${PC_STG_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
 	dpkg -i sdl-dev_${SDL_VER}-1_amd64.deb sdl_${SDL_VER}-1_amd64.deb
+
+RUN git clone https://github.com/Tencent/rapidjson && \
+   cd rapidjson && \
+   mkdir build && \
+   cd build && \
+   cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && \
+   make install && \
+   cd ${STAGE_DIR} && \
+   rm -rf rapidjson
+			    
 
 
 #
