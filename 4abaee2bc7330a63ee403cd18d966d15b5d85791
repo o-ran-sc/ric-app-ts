@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5154563a_4a31d977",
+        "filename": "xapp-descriptor/config.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-15T16:55:41Z",
+      "side": 1,
+      "message": "Hate to keep sounding like a broken record, but should this be /usr/local/bin/ts_xapp?",
+      "range": {
+        "startLine": 12,
+        "startChar": 17,
+        "endLine": 12,
+        "endChar": 45
+      },
+      "revId": "4abaee2bc7330a63ee403cd18d966d15b5d85791",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
