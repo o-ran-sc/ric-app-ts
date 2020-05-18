@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d016384_cb719d48",
+        "filename": "test/populatedb/helm/templates/_helpers.tpl",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "2020",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6329117a_2721e307",
+        "filename": "test/populatedb/helm/templates/job.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "2020",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "432569f9_48f5e7e4",
+        "filename": "test/populatedb/helm/values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "Remove Nokia line",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb59189d_27538fb1",
+        "filename": "test/populatedb/src/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "Nokia should be removed from xAPP code.",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b068f36_b704d732",
+        "filename": "test/populatedb/src/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "Might as well nix the trailing whitespace while here too.",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e22659dd_8ea7d6ef",
+        "filename": "test/populatedb/src/write_sdl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1000037
+      },
+      "writtenOn": "2020-05-18T17:14:13Z",
+      "side": 1,
+      "message": "Here too.",
+      "revId": "77fc39df98fdf460840211ee6b13fea71a87c6c5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
