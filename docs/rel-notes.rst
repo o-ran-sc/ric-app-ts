@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2020 May 20  Version 1.0.4
+----------------------------
+	Ensure that the SDL libraries are included in the image.
+
 2020 April 28  Version 1.0.0
 ----------------------------
 

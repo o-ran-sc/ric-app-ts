@@ -73,7 +73,7 @@ RUN git clone https://github.com/Tencent/rapidjson && \
    make install && \
    cd ${STAGE_DIR} && \
    rm -rf rapidjson
-			    
+
 
 
 #
@@ -96,9 +96,21 @@ COPY assets/bootstrap.rt /playpen/assets
 #
 
 
-
 # -----  create final, smaller, image ----------------------------------
 FROM ubuntu:18.04
+
+# package cloud urls for wget
+ARG PC_REL_URL=https://packagecloud.io/o-ran-sc/release/packages/debian/stretch
+ARG PC_STG_URL=https://packagecloud.io/o-ran-sc/staging/packages/debian/stretch
+ARG SDL_VER=1.0.4
+
+# sdl doesn't install into /usr/local like everybody else, and we don't want to
+# hunt for it or copy all of /usr, so we must pull and reinstall it.
+RUN apt-get update
+RUN apt-get install -y libboost-filesystem1.65.1 libboost-system1.65.1 libhiredis0.13 wget
+RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
+	wget -nv --content-disposition ${PC_STG_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
+	dpkg -i sdl-dev_${SDL_VER}-1_amd64.deb sdl_${SDL_VER}-1_amd64.deb
 
 RUN rm -fr /var/lib/apt/lists
 
