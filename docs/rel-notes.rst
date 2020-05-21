@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2020 May 20 Version 1.0.5
+----------------------------
+        Support parsing of A1 Policy Create message
+
 2020 May 20  Version 1.0.4
 ----------------------------
 	Ensure that the SDL libraries are included in the image.

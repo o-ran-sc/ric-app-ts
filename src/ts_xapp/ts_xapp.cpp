@@ -85,6 +85,74 @@ struct UEData {
 
 };
 
+struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
+  unordered_map<string, string> cell_pred;
+  std::string ue_id;
+  bool ue_id_found = false;
+  string curr_key = "";
+  string curr_value = "";
+  int policy_type_id;
+  int policy_instance_id;
+  int threshold;
+  std::string operation;
+  bool found_threshold = false;
+
+  
+  bool Null() { cout << "Null()" << endl; return true; }
+  bool Bool(bool b) { cout << "Bool(" << boolalpha << b << ")" << endl; return true; }
+  bool Int(int i) {
+    cout << "Int(" << i << ")" << endl;
+    if (curr_key.compare("policy_type_id") == 0) {
+      policy_type_id = i;
+    } else if (curr_key.compare("policy_instance_id") == 0) {
+      policy_instance_id = i;
+    } else if (curr_key.compare("threshold") == 0) {
+      found_threshold = true;
+      threshold = i;
+    }
+
+    return true;
+  }
+  bool Uint(unsigned u) {
+    cout << "Int(" << u << ")" << endl;
+    if (curr_key.compare("policy_type_id") == 0) {
+      policy_type_id = u;
+    } else if (curr_key.compare("policy_instance_id") == 0) {
+      policy_instance_id = u;
+    } else if (curr_key.compare("threshold") == 0) {
+      found_threshold = true;
+      threshold = u;
+    }
+
+    return true;
+  }    
+  bool Int64(int64_t i) { cout << "Int64(" << i << ")" << endl; return true; }
+  bool Uint64(uint64_t u) { cout << "Uint64(" << u << ")" << endl; return true; }
+  bool Double(double d) { cout << "Double(" << d << ")" << endl; return true; }
+  bool String(const char* str, SizeType length, bool copy) {
+    cout << "String(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
+    if (curr_key.compare("operation") != 0) {
+      operation = str;
+    }
+
+    return true;
+  }
+  bool StartObject() {
+    cout << "StartObject()" << endl;
+    return true;
+  }
+  bool Key(const char* str, SizeType length, bool copy) {
+    cout << "Key(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
+    curr_key = str;
+
+    return true;
+  }
+  bool EndObject(SizeType memberCount) { cout << "EndObject(" << memberCount << ")" << endl; return true; }
+  bool StartArray() { cout << "StartArray()" << endl; return true; }
+  bool EndArray(SizeType elementCount) { cout << "EndArray(" << elementCount << ")" << endl; return true; }
+
+};
+
 struct PredictionHandler : public BaseReaderHandler<UTF8<>, PredictionHandler> {
   unordered_map<string, string> cell_pred;
   std::string ue_id;
@@ -266,8 +334,18 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
   mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
 
+  const char *arg = (const char*)payload.get();
+
+  PolicyHandler handler;
+  Reader reader;
+  StringStream ss(arg);
+  reader.Parse(ss,handler);
+
   //Set the threshold value
 
+  if (handler.found_threshold) {
+    rsrp_threshold = handler.threshold;
+  }
   
 }
 
@@ -363,11 +441,11 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
   fprintf(stderr, "cb 1\n");
 
-  char *incoming_msg = "{\"12345\": {\"222\": \"20000\", \"333\" : \"50000\"} }";
+  const char* arg = (const char*)payload.get();
 
   PredictionHandler handler;
   Reader reader;
-  StringStream ss(incoming_msg);
+  StringStream ss(arg);
   reader.Parse(ss,handler);
 
   std::string pred_ue_id = handler.ue_id;
@@ -482,7 +560,7 @@ extern int main( int argc, char** argv ) {
 
   nsu = Namespace(sdl_namespace_u);
   nsc = Namespace(sdl_namespace_c);
-  
+
   
   fprintf( stderr, "<XAPP> listening on port: %s\n", port );
   xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) ); // new xAPP thing; wait for a route table
