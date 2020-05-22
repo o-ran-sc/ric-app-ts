@@ -2,5 +2,5 @@
 
 newrt | start
 mse | 20011 | -1 | service-ricplt-a1mediator-rmr:4562
-mse | 30000 | -1 | service-ricxapp-qpd:4560
+mse | 30000 | -1 | service-ricxapp-qpdriver-rmr.ricxapp.svc.cluster.local:4562
 newrt | end

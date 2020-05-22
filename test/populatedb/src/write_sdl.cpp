@@ -1,5 +1,5 @@
-// vi: ts=4 sw=4 noet:
 
+/*
 # ==================================================================================
 #       Copyright (c) 2020 AT&T Intellectual Property.
 #
@@ -15,7 +15,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 # ==================================================================================
-
+*/
 
 #include <stdio.h>
 #include <string.h>
