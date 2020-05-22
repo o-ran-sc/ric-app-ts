@@ -18,7 +18,7 @@
                     "container": "trafficxapp",
                     "port": 4560,
                     "rxMessages": [ 
-                    	"TS_QUE_PREDICTION",
+                    	"TS_QOE_PREDICTION",
                     	"A1_POLICY_REQ"
 
                     ],
@@ -42,7 +42,7 @@
                 "TS_UE_LIST"
             ],
             "rxMessages": [
-                "TS_QUE_PREDICTION",
+                "TS_QOE_PREDICTION",
                 "A1_POLICY_REQ"                
             ],
             "policies": [20008]
