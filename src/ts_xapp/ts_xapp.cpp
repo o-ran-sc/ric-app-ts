@@ -336,8 +336,8 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   int rmtype;		// received message type
 
   
-  cout <<  "Policy Callback got a message, type=" << mytpe << " , length=" << len << endl;
-  cout <<  "payload is " << payload.get()) << endl;
+  cout <<  "Policy Callback got a message, type=" << mtype << " , length=" << len << endl;
+  cout <<  "payload is " << payload.get() << endl;
   
 
   const char *arg = (const char*)payload.get();
