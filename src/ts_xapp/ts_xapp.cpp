@@ -154,27 +154,36 @@ struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
 };
 
 struct PredictionHandler : public BaseReaderHandler<UTF8<>, PredictionHandler> {
-  unordered_map<string, string> cell_pred;
+  unordered_map<string, int> cell_pred_down;
+  unordered_map<string, int> cell_pred_up;
   std::string ue_id;
   bool ue_id_found = false;
   string curr_key = "";
   string curr_value = "";
+  bool down_val = true;
   bool Null() { cout << "Null()" << endl; return true; }
   bool Bool(bool b) { cout << "Bool(" << boolalpha << b << ")" << endl; return true; }
   bool Int(int i) { cout << "Int(" << i << ")" << endl; return true; }
-  bool Uint(unsigned u) { cout << "Uint(" << u << ")" << endl; return true; }
+  bool Uint(unsigned u) {    
+    cout << "Uint(" << u << ")" << endl; 
+    if (down_val) {
+      cell_pred_down[curr_key] = u;
+      cout << "Setting xput down val for " << curr_key << " to " << u << endl;
+      down_val = false;
+    } else {
+      cell_pred_up[curr_key] = u;
+      cout << "Setting xput up val for " << curr_key << " to " << u << endl;
+      down_val = true;
+    }
+
+    return true;    
+
+  }
   bool Int64(int64_t i) { cout << "Int64(" << i << ")" << endl; return true; }
   bool Uint64(uint64_t u) { cout << "Uint64(" << u << ")" << endl; return true; }
   bool Double(double d) { cout << "Double(" << d << ")" << endl; return true; }
   bool String(const char* str, SizeType length, bool copy) {
     cout << "String(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
-    if (curr_key.compare("") != 0) {
-      cout << "Found throughput\n";
-      curr_value = str;
-      cell_pred[curr_key] = curr_value;
-      curr_key = "";
-      curr_value = "";
-    }
 
     return true;
   }
@@ -330,9 +339,6 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   fprintf( stderr, "Policy Callback got a message, type=%d , length=%d\n" , mtype, len);
   fprintf(stderr, "payload is %s\n", payload.get());
   
-  //fprintf( stderr, "callback 1 got a message type = %d len = %d\n", mtype, len );
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
 
   const char *arg = (const char*)payload.get();
 
@@ -346,6 +352,10 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   if (handler.found_threshold) {
     rsrp_threshold = handler.threshold;
   }
+
+  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
+  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
+  
   
 }
 
@@ -431,28 +441,33 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   int rmtype;							// received message type
   int delay = 1000000;				// mu-sec delay; default 1s
 
-  fprintf( stderr, "Prediction Callback got a message, type=%d , length=%d\n" , mtype, len);
-  fprintf(stderr, "payload is %s\n", payload.get());
-  
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
+  cout << "Prediction Callback got a message, type=" << mtype << " , length=" << len << "\n";
+  cout << "payload is " << payload.get() << "\n";
 
   mtype = 0;
 
-  fprintf(stderr, "cb 1\n");
+  cout << "prediction callback 1" << endl;
 
   const char* arg = (const char*)payload.get();
 
+  cout << "ready to parse " << arg << endl;
+
   PredictionHandler handler;
-  Reader reader;
-  StringStream ss(arg);
-  reader.Parse(ss,handler);
 
+  try {
+
+    Reader reader;
+    StringStream ss(arg);
+    reader.Parse(ss,handler);
+  } catch (...) {
+    cout << "got an exception on stringstream read parse\n";
+  }
+  
   std::string pred_ue_id = handler.ue_id;
-
+  
   cout << "Prediction for " << pred_ue_id << endl;
-
-  unordered_map<string, string> throughput_map = handler.cell_pred;
+  
+  unordered_map<string, int> throughput_map = handler.cell_pred_down;
 
 
   cout << endl;
@@ -480,7 +495,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
     cout << map_iter->first << " : " << map_iter->second << endl;    
     std::string curr_cellid = map_iter->first;
     cout << "Cell ID is " << curr_cellid;
-    int curr_throughput = stoi(map_iter->second, &str_size);
+    int curr_throughput = map_iter->second;
     cout << "Throughput is " << curr_throughput << endl;
 
     if (curr_cellid.compare(serving_cell_id) == 0) {
@@ -496,7 +511,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
     cout << map_iter->first << " : " << map_iter->second << endl;    
     std::string curr_cellid = map_iter->first;
     cout << "Cell ID is " << curr_cellid;
-    int curr_throughput = stoi(map_iter->second, &str_size);
+    int curr_throughput = map_iter->second;
     cout << "Throughput is " << curr_throughput << endl;
 
     if (curr_throughput > serving_cell_throughput) {
@@ -511,6 +526,9 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
     cout << "Source cell " << serving_cell_id << endl;
     cout << "Target cell " << highest_throughput_cell_id << endl;
   }
+
+  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
+  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
   
   
 }
@@ -520,7 +538,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
 void run_loop() {
 
-  fprintf(stderr, "in run_loop()\n");
+  cout << "in run_loop()\n";
 
   unordered_map<string, UEData> uemap;
 
@@ -528,7 +546,7 @@ void run_loop() {
 
   while (1) {
 
-    fprintf(stderr, "in while loop\n");
+    cout <<  "in while loop\n";
 
     uemap = get_sdl_ue_data();
 
