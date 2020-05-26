@@ -336,8 +336,8 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   int rmtype;		// received message type
 
   
-  fprintf( stderr, "Policy Callback got a message, type=%d , length=%d\n" , mtype, len);
-  fprintf(stderr, "payload is %s\n", payload.get());
+  cout <<  "Policy Callback got a message, type=" << mytpe << " , length=" << len << endl;
+  cout <<  "payload is " << payload.get()) << endl;
   
 
   const char *arg = (const char*)payload.get();
@@ -350,6 +350,7 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   //Set the threshold value
 
   if (handler.found_threshold) {
+    cout << "Setting RSRP Threshold to A1-P value: " << handler.threshold << endl;
     rsrp_threshold = handler.threshold;
   }
 

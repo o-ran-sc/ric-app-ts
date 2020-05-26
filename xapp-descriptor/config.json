@@ -5,9 +5,9 @@
             {
                 "name": "trafficxapp",
                 "image": {
-                    "registry": "nexus3.o-ran-sc.org:10002",
+                    "registry": "nexus3.o-ran-sc.org:10004",
                     "name": "o-ran-sc/ric-app-ts",
-                    "tag": "1.0.7"
+                    "tag": "1.0.8"
                 }
             }
         ],
