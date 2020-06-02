@@ -1,6 +1,5 @@
 
 ==================================================================================
-       Copyright (c) 2020 Nokia
        Copyright (c) 2020 AT&T Intellectual Property.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,5 +16,36 @@
 ==================================================================================
 
 Traffic Steering
+================
 
 This repository contains the source for the RIC traffic steering application.
+
+This xApp can be onboarded through the xApp Onboarder.  The xapp descriptor 
+is under the xapp-descriptor/ directory.
+
+Then the xapp can be deployed through the App Manager.
+
+In order for Traffic Steering xApp to carry out the Traffic Steering Use Case,
+the following needs to be done:
+* QP xApp needs to be onboarded and deployed (see xapp descriptor in that repo)
+* QP Driver xApp needs to be onboarded and deployed (see xapp descriptor in that repo)
+* SDL must contain network data
+
+Mock network data
+=================
+
+Currently, there is no xapp available to receive RAN metrics and write to SDL.
+
+The Traffic Steering Use Case can be run with mock data.  Everything needed to write this
+mock data is included in this repo.  Directions are as follows:
+
+cd test/populatedb
+
+chmod a+x populate_db.sh
+
+./populate_db.sh
+
+This script will build a docker image locally and also install a helm chart in the kubernetes cluster to run the image.
+
+The code that is run will write the necessary data to SDL
+
