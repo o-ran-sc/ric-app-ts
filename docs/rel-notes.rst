@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2020 June 2 Version 1.0.9
+----------------------------
+        Fix xapp descriptor to have rmr-data sections instead of rmr-data-in
+
 2020 May 26 Version 1.0.7
 ----------------------------
         Fix issue with parsing of prediction message
