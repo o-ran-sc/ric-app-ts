@@ -132,6 +132,7 @@ COPY --from=buildenv /playpen/assets/* /data
 # if needed, set RMR vars
 ENV RMR_SEED_RT=/data/bootstrap.rt
 #ENV RMR_RTG_SVC=rm-host:port
+ENV RMR_SRC_ID=service-ricxapp-trafficxapp-rmr.ricxapp:4560
 ENV RMR_VCTL_FILE=/tmp/rmr.v
 RUN echo "2" >/tmp/rmr.v
 
