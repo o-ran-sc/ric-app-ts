@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2020 June 11 Version 1.0.11
+----------------------------
+        Removed extraneous logging messages
+
 2020 June 8 Version 1.0.10
 ----------------------------
         Set env. variable RMR_SRC_ID to bet K8s RMR Service Host and Port

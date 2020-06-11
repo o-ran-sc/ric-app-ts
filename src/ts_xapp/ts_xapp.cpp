@@ -98,10 +98,10 @@ struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
   bool found_threshold = false;
 
   
-  bool Null() { cout << "Null()" << endl; return true; }
-  bool Bool(bool b) { cout << "Bool(" << boolalpha << b << ")" << endl; return true; }
+  bool Null() { return true; }
+  bool Bool(bool b) { return true; }
   bool Int(int i) {
-    cout << "Int(" << i << ")" << endl;
+
     if (curr_key.compare("policy_type_id") == 0) {
       policy_type_id = i;
     } else if (curr_key.compare("policy_instance_id") == 0) {
@@ -114,7 +114,7 @@ struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
     return true;
   }
   bool Uint(unsigned u) {
-    cout << "Int(" << u << ")" << endl;
+
     if (curr_key.compare("policy_type_id") == 0) {
       policy_type_id = u;
     } else if (curr_key.compare("policy_instance_id") == 0) {
@@ -126,11 +126,11 @@ struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
 
     return true;
   }    
-  bool Int64(int64_t i) { cout << "Int64(" << i << ")" << endl; return true; }
-  bool Uint64(uint64_t u) { cout << "Uint64(" << u << ")" << endl; return true; }
-  bool Double(double d) { cout << "Double(" << d << ")" << endl; return true; }
+  bool Int64(int64_t i) {  return true; }
+  bool Uint64(uint64_t u) {  return true; }
+  bool Double(double d) {  return true; }
   bool String(const char* str, SizeType length, bool copy) {
-    cout << "String(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
+    
     if (curr_key.compare("operation") != 0) {
       operation = str;
     }
@@ -138,18 +138,18 @@ struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
     return true;
   }
   bool StartObject() {
-    cout << "StartObject()" << endl;
+
     return true;
   }
   bool Key(const char* str, SizeType length, bool copy) {
-    cout << "Key(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
+
     curr_key = str;
 
     return true;
   }
-  bool EndObject(SizeType memberCount) { cout << "EndObject(" << memberCount << ")" << endl; return true; }
-  bool StartArray() { cout << "StartArray()" << endl; return true; }
-  bool EndArray(SizeType elementCount) { cout << "EndArray(" << elementCount << ")" << endl; return true; }
+  bool EndObject(SizeType memberCount) {  return true; }
+  bool StartArray() {  return true; }
+  bool EndArray(SizeType elementCount) {  return true; }
 
 };
 
@@ -161,37 +161,33 @@ struct PredictionHandler : public BaseReaderHandler<UTF8<>, PredictionHandler> {
   string curr_key = "";
   string curr_value = "";
   bool down_val = true;
-  bool Null() { cout << "Null()" << endl; return true; }
-  bool Bool(bool b) { cout << "Bool(" << boolalpha << b << ")" << endl; return true; }
-  bool Int(int i) { cout << "Int(" << i << ")" << endl; return true; }
+  bool Null() {  return true; }
+  bool Bool(bool b) {  return true; }
+  bool Int(int i) {  return true; }
   bool Uint(unsigned u) {    
-    cout << "Uint(" << u << ")" << endl; 
+
     if (down_val) {
       cell_pred_down[curr_key] = u;
-      cout << "Setting xput down val for " << curr_key << " to " << u << endl;
       down_val = false;
     } else {
       cell_pred_up[curr_key] = u;
-      cout << "Setting xput up val for " << curr_key << " to " << u << endl;
       down_val = true;
     }
 
     return true;    
 
   }
-  bool Int64(int64_t i) { cout << "Int64(" << i << ")" << endl; return true; }
-  bool Uint64(uint64_t u) { cout << "Uint64(" << u << ")" << endl; return true; }
-  bool Double(double d) { cout << "Double(" << d << ")" << endl; return true; }
+  bool Int64(int64_t i) {  return true; }
+  bool Uint64(uint64_t u) {  return true; }
+  bool Double(double d) {  return true; }
   bool String(const char* str, SizeType length, bool copy) {
-    cout << "String(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
 
     return true;
   }
-  bool StartObject() { cout << "StartObject()" << endl; return true; }
+  bool StartObject() {  return true; }
   bool Key(const char* str, SizeType length, bool copy) {
-    cout << "Key(" << str << ", " << length << ", " << boolalpha << copy << ")" << endl;
     if (!ue_id_found) {
-      cout << "Found UE ID\n";
+
       ue_id = str;
       ue_id_found = true;
     } else {
@@ -199,9 +195,9 @@ struct PredictionHandler : public BaseReaderHandler<UTF8<>, PredictionHandler> {
     }
     return true;
   }
-  bool EndObject(SizeType memberCount) { cout << "EndObject(" << memberCount << ")" << endl; return true; }
-  bool StartArray() { cout << "StartArray()" << endl; return true; }
-  bool EndArray(SizeType elementCount) { cout << "EndArray(" << elementCount << ")" << endl; return true; }
+  bool EndObject(SizeType memberCount) {  return true; }
+  bool StartArray() {  return true; }
+  bool EndArray(SizeType elementCount) {  return true; }
 };
 
 
@@ -216,12 +212,12 @@ struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
 
   string curr_key = "";
   string curr_value = "";
-  bool Null() { cout << "Null()" << endl; return true; }
-  bool Bool(bool b) { cout << "Bool(" << boolalpha << b << ")" << endl; return true; }
+  bool Null() { return true; }
+  bool Bool(bool b) { return true; }
   bool Int(int i) {
-    fprintf(stderr, "Int(%d)\n", i);
+
     if (in_serving_array) {
-      fprintf(stderr, "we are in serving array\n");
+
       switch(rf_meas_index) {
       case 0:
 	serving_cell_rsrp = i;
@@ -238,27 +234,27 @@ struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
     return true;
   }
   bool Uint(unsigned u) {
-    fprintf(stderr, "Int(%d)\n", u); return true; }
-  bool Int64(int64_t i) { cout << "Int64(" << i << ")" << endl; return true; }
-  bool Uint64(uint64_t u) { cout << "Uint64(" << u << ")" << endl; return true; }
-  bool Double(double d) { cout << "Double(" << d << ")" << endl; return true; }
+    return true; }
+  bool Int64(int64_t i) { return true; }
+  bool Uint64(uint64_t u) { return true; }
+  bool Double(double d) { return true; }
   bool String(const char* str, SizeType length, bool copy) {
-    fprintf(stderr,"String(%s)\n", str);
+    
     if (curr_key.compare("ServingCellID") == 0) {
       serving_cell_id = str;
     } 
 
     return true;
   }
-  bool StartObject() { cout << "StartObject()" << endl; return true; }
+  bool StartObject() { return true; }
   bool Key(const char* str, SizeType length, bool copy) {
-    fprintf(stderr,"Key(%s)\n", str);
+    
     curr_key = str;
     return true;
   }
-  bool EndObject(SizeType memberCount) { cout << "EndObject(" << memberCount << ")" << endl; return true; }
+  bool EndObject(SizeType memberCount) { return true; }
   bool StartArray() {
-    fprintf(stderr,"StartArray()");
+
     if (curr_key.compare("ServingCellRF") == 0) {
       in_serving_array = true;
     }
@@ -266,7 +262,7 @@ struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
     return true;
   }
   bool EndArray(SizeType elementCount) {
-    fprintf(stderr, "EndArray()\n");
+
     if (curr_key.compare("servingCellRF") == 0) {
       in_serving_array = false;
       rf_meas_index = 0;
@@ -295,7 +291,7 @@ unordered_map<string, UEData> get_sdl_ue_data() {
     std::vector<uint8_t> val_v = Dk2[(*si)]; // 4 lines to unpack a string
     char val[val_v.size()+1];                               // from Data
     int i;
-    fprintf(stderr, "val size %d\n", val_v.size());
+
     for(i=0;i<val_v.size();++i) val[i] = (char)(val_v[i]);
     val[i]='\0';
       ue_id.assign((std::string)*si);
@@ -303,10 +299,6 @@ unordered_map<string, UEData> get_sdl_ue_data() {
       ue_json.assign(val);
       ue_data[ue_id] =  ue_json;
   }
-  
-  fprintf(stderr, "after sdl get of ue data\n");
-  
-  fprintf(stderr, "From UE data map\n");
   
   for (auto map_iter = ue_data.begin(); map_iter != ue_data.end(); map_iter++) {
     UEDataHandler handler;
@@ -318,15 +310,10 @@ unordered_map<string, UEData> get_sdl_ue_data() {
     string serving_cell_id = handler.serving_cell_id;
     int serv_rsrp = handler.serving_cell_rsrp;
     
-    fprintf(stderr,"UE data for %s\n", ueID.c_str());
-    fprintf(stderr,"Serving cell %s\n", serving_cell_id.c_str());
-    fprintf(stderr,"RSRP for UE %d\n", serv_rsrp);
-
     return_ue_data_map[ueID] = {serving_cell_id, serv_rsrp};
     
-  }
-  
-  fprintf(stderr, "\n");
+  }  
+
   return return_ue_data_map;
 }
 
@@ -372,8 +359,6 @@ void send_prediction_request(vector<string> ues_to_predict) {
   int i;
   Msg_component send_payload;
   
-  fprintf(stderr, "cb 1\n");
-
   msg = xfw->Alloc_msg( 2048 );
   
   sz = msg->Get_available_size();  // we'll reuse a message if we received one back; ensure it's big enough
@@ -381,8 +366,6 @@ void send_prediction_request(vector<string> ues_to_predict) {
     fprintf( stderr, "<SNDR> fail: message returned did not have enough size: %d [%d]\n", sz, i );
     exit( 1 );
   }
-
-  fprintf(stderr, "cb 2");
 
   string ues_list = "[";
 
@@ -405,17 +388,13 @@ void send_prediction_request(vector<string> ues_to_predict) {
   //  snprintf( (char *) send_payload.get(), 2048, body);
   snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\": [\"12345\"]}");
 
-  fprintf(stderr, "message body %s\n", send_payload.get());
-  
-  fprintf(stderr, "cb 3");
+  fprintf(stderr, "message body %s\n", send_payload.get());  
   fprintf(stderr, "payload length %d\n", strlen( (char *) send_payload.get() ));
   
   // payload updated in place, nothing to copy from, so payload parm is nil
   if ( ! msg->Send_msg( mtype, Message::NO_SUBID, strlen( (char *) send_payload.get() ), NULL )) {
     fprintf( stderr, "<SNDR> send failed: %d\n", msg->Get_state() );
   }
-
-  fprintf(stderr, "cb 4");
 
   /*
   msg = xfw->Receive( response_to );
@@ -447,12 +426,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
   mtype = 0;
 
-  cout << "prediction callback 1" << endl;
-
   const char* arg = (const char*)payload.get();
-
-  cout << "ready to parse " << arg << endl;
-
   PredictionHandler handler;
 
   try {
@@ -469,7 +443,6 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   cout << "Prediction for " << pred_ue_id << endl;
   
   unordered_map<string, int> throughput_map = handler.cell_pred_down;
-
 
   cout << endl;
  
@@ -490,14 +463,10 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   std::string highest_throughput_cell_id;
   std::string::size_type str_size;
 
-  cout << "Going through throughtput map:" << endl;
-
   for (auto map_iter = throughput_map.begin(); map_iter != throughput_map.end(); map_iter++) {
-    cout << map_iter->first << " : " << map_iter->second << endl;    
+
     std::string curr_cellid = map_iter->first;
-    cout << "Cell ID is " << curr_cellid;
     int curr_throughput = map_iter->second;
-    cout << "Throughput is " << curr_throughput << endl;
 
     if (curr_cellid.compare(serving_cell_id) == 0) {
       serving_cell_throughput = curr_throughput;
@@ -509,11 +478,9 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   //Iterating again to identify the highest throughput prediction
 
   for (auto map_iter = throughput_map.begin(); map_iter != throughput_map.end(); map_iter++) {
-    cout << map_iter->first << " : " << map_iter->second << endl;    
+
     std::string curr_cellid = map_iter->first;
-    cout << "Cell ID is " << curr_cellid;
     int curr_throughput = map_iter->second;
-    cout << "Throughput is " << curr_throughput << endl;
 
     if (curr_throughput > serving_cell_throughput) {
       highest_throughput = curr_throughput;
@@ -539,15 +506,13 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
 void run_loop() {
 
-  cout << "in run_loop()\n";
+  cout << "in Traffic Steering run_loop()\n";
 
   unordered_map<string, UEData> uemap;
 
   vector<string> prediction_ues;
 
   while (1) {
-
-    cout <<  "in while loop\n";
 
     uemap = get_sdl_ue_data();
 
@@ -582,14 +547,10 @@ extern int main( int argc, char** argv ) {
 
   
   fprintf( stderr, "<XAPP> listening on port: %s\n", port );
-  xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) ); // new xAPP thing; wait for a route table
-  fprintf(stderr, "code1\n");
-
+  xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) ); 
   
   xfw->Add_msg_cb( 20010, policy_callback, NULL );
   xfw->Add_msg_cb( 30002, prediction_callback, NULL );
-
-  fprintf(stderr, "code2\n");
   
   std::thread loop_thread;
 
