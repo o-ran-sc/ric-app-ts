@@ -20,8 +20,6 @@ RUN mkdir /playpen/src
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-RUN git config --global http.proxy http://one.proxy.att.com:8080
-
 RUN apt-get install -y cpputest
 RUN apt-get remove -y libboost-all-dev
 RUN apt-get install -y  libboost-all-dev
