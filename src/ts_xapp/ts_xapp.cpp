@@ -532,7 +532,13 @@ void run_loop() {
   }
 }
 
-
+/* This function works with Anomaly Detection(AD) xApp. It is invoked when anomalous UEs are send by AD xApp.
+ * It just print the payload received from AD xApp and send an ACK with same UEID as payload to AD xApp.
+ */
+void ad_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
+  cout << "payload is " << payload.get() << "\n";
+  mbuf.Send_response(30004, -1, strlen((char *) payload.get()), (unsigned char *) payload.get());
+}
 
 extern int main( int argc, char** argv ) {
 
@@ -551,6 +557,7 @@ extern int main( int argc, char** argv ) {
   
   xfw->Add_msg_cb( 20010, policy_callback, NULL );
   xfw->Add_msg_cb( 30002, prediction_callback, NULL );
+  xfw->Add_msg_cb( 30003, ad_callback, NULL ); /*Register a callback function for msg type 30003*/
   
   std::thread loop_thread;
 

@@ -1,4 +1,5 @@
 newrt|start
 rte|20011|service-ricplt-a1mediator-rmr:10000
 rte|30000|service-ricxapp-qpdriver.ricxapp.svc.cluster.local:4562
+rte|30004|service-ricxapp-ad-rmr:4560
 newrt|end

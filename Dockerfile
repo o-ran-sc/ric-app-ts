@@ -31,7 +31,7 @@
 
 # the builder has: git, wget, cmake, gcc/g++, make, python2/3. v7 dropped nng support
 #
-FROM nexus3.o-ran-sc.org:10004/o-ran-sc/bldr-ubuntu18-c-go:8-u18.04 as buildenv
+FROM nexus3.o-ran-sc.org:10004/o-ran-sc/bldr-ubuntu18-c-go:9-u18.04 as buildenv
 
 # spaces to save things in the build image to copy to final image
 RUN mkdir -p /playpen/assets /playpen/src /playpen/bin
@@ -42,7 +42,7 @@ WORKDIR /playpen
 # versions we snarf from package cloud
 ARG RMR_VER=4.0.5
 ARG SDL_VER=1.0.4
-ARG XFCPP_VER=1.0.0
+ARG XFCPP_VER=1.2.0
 
 # package cloud urls for wget
 ARG PC_REL_URL=https://packagecloud.io/o-ran-sc/release/packages/debian/stretch
