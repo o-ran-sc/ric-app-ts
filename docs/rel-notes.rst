@@ -9,6 +9,15 @@
 Traffic Steering xAPP
 =====================
 
+2020 Dec 8 Version 1.0.13
+-------------------------
+        Small changes to integrate with RAN data written by KPIMON xApp
+
+2020 Dec 7 Version 1.0.12
+-------------------------
+        Change by HCL to support AD xapp
+
+
 2020 June 11 Version 1.0.11
 ----------------------------
         Removed extraneous logging messages

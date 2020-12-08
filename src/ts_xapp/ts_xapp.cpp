@@ -210,33 +210,36 @@ struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
   bool in_serving_array = false;
   int rf_meas_index = 0;
 
+  bool in_serving_report_object = false;  
+
   string curr_key = "";
   string curr_value = "";
   bool Null() { return true; }
   bool Bool(bool b) { return true; }
   bool Int(int i) {
 
-    if (in_serving_array) {
-
-      switch(rf_meas_index) {
-      case 0:
-	serving_cell_rsrp = i;
-	break;
-      case 1:
-	serving_cell_rsrq = i;
-	break;
-      case 2:
-	serving_cell_sinr = i;
-	break;
-      }
-      rf_meas_index++;
-    }
     return true;
   }
-  bool Uint(unsigned u) {
+  
+  bool Uint(unsigned i) {
+
+    if (in_serving_report_object) {
+      if (curr_key.compare("rsrp") == 0) {
+	serving_cell_rsrp = i;
+      } else if (curr_key.compare("rsrq") == 0) {
+	serving_cell_rsrq = i;
+      } else if (curr_key.compare("rssinr") == 0) {
+	serving_cell_sinr = i;
+      }
+    }          
+    
     return true; }
-  bool Int64(int64_t i) { return true; }
-  bool Uint64(uint64_t u) { return true; }
+  bool Int64(int64_t i) {
+
+    return true; }
+  bool Uint64(uint64_t i) {
+
+    return true; }
   bool Double(double d) { return true; }
   bool String(const char* str, SizeType length, bool copy) {
     
@@ -246,13 +249,22 @@ struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
 
     return true;
   }
-  bool StartObject() { return true; }
+  bool StartObject() {
+    if (curr_key.compare("ServingCellRF") == 0) {
+      in_serving_report_object = true;
+    }
+
+    return true; }
   bool Key(const char* str, SizeType length, bool copy) {
     
     curr_key = str;
     return true;
   }
-  bool EndObject(SizeType memberCount) { return true; }
+  bool EndObject(SizeType memberCount) {
+    if (curr_key.compare("ServingCellRF") == 0) {
+      in_serving_report_object = false;
+    }
+    return true; }
   bool StartArray() {
 
     if (curr_key.compare("ServingCellRF") == 0) {
@@ -280,7 +292,7 @@ unordered_map<string, UEData> get_sdl_ue_data() {
 
   unordered_map<string, UEData> return_ue_data_map;
     
-  std::string prefix3="12";
+  std::string prefix3="";
   Keys K2 = sdl->findKeys(nsu, prefix3);
   DataMap Dk2 = sdl->get(nsu, K2);
   
@@ -323,11 +335,11 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   int rmtype;		// received message type
 
   
-  cout <<  "Policy Callback got a message, type=" << mtype << " , length=" << len << endl;
-  cout <<  "payload is " << payload.get() << endl;
-  
+  fprintf(stderr, "Policy Callback got a message, type=%d, length=%d\n", mtype, len);
 
   const char *arg = (const char*)payload.get();
+
+  fprintf(stderr, "payload is %s\n", payload.get());
 
   PolicyHandler handler;
   Reader reader;
@@ -337,7 +349,7 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   //Set the threshold value
 
   if (handler.found_threshold) {
-    cout << "Setting RSRP Threshold to A1-P value: " << handler.threshold << endl;
+    fprintf(stderr, "Setting RSRP Threshold to A1-P value: %d\n", handler.threshold);
     rsrp_threshold = handler.threshold;
   }
 
@@ -371,7 +383,7 @@ void send_prediction_request(vector<string> ues_to_predict) {
 
   for (int i = 0; i < ues_to_predict.size(); i++) {
     if (i == ues_to_predict.size() - 1) {
-      ues_list = ues_list + " \"" + ues_to_predict.at(i) + "\"";
+      ues_list = ues_list + " \"" + ues_to_predict.at(i) + "\"]";
     } else {
       ues_list = ues_list + " \"" + ues_to_predict.at(i) + "\"" + ",";
     }
@@ -385,8 +397,8 @@ void send_prediction_request(vector<string> ues_to_predict) {
   
   send_payload = msg->Get_payload(); // direct access to payload
   //  snprintf( (char *) send_payload.get(), 2048, '{"UEPredictionSet" : ["12345"]}', 1 );
-  //  snprintf( (char *) send_payload.get(), 2048, body);
-  snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\": [\"12345\"]}");
+  snprintf( (char *) send_payload.get(), 2048, body);
+  //snprintf( (char *) send_payload.get(), 2048, "{\"UEPredictionSet\": [\"12345\"]}");
 
   fprintf(stderr, "message body %s\n", send_payload.get());  
   fprintf(stderr, "payload length %d\n", strlen( (char *) send_payload.get() ));
@@ -510,19 +522,28 @@ void run_loop() {
 
   unordered_map<string, UEData> uemap;
 
-  vector<string> prediction_ues;
-
   while (1) {
 
     uemap = get_sdl_ue_data();
 
+    vector<string> prediction_ues;
+
     for (auto map_iter = uemap.begin(); map_iter != uemap.end(); map_iter++) {
       string ueid = map_iter->first;
+      fprintf(stderr,"found a ueid %s\n", ueid.c_str());
       UEData data = map_iter->second;
+
+      fprintf(stderr, "current rsrp is %d\n", data.serving_cell_rsrp);
+
       if (data.serving_cell_rsrp < rsrp_threshold) {
+	fprintf(stderr,"it is less than the rsrp threshold\n");
 	prediction_ues.push_back(ueid);
+      } else {
+	fprintf(stderr,"it is not less than the rsrp threshold\n");
       }
     }
+
+    fprintf(stderr, "the size of pred ues is %d\n", prediction_ues.size());
 
     if (prediction_ues.size() > 0) {
       send_prediction_request(prediction_ues);
