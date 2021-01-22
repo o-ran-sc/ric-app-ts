@@ -18,6 +18,12 @@
 #   limitations under the License.
 #==================================================================================
 
+# LICENSE NOTE:
+# this code is based on the unit test code in the o-ran-sc RMR repositiory which
+# is covered by the original license above, and thus that license governs this
+# extension as well.
+# ---------------------------------------------------------------------------------
+
 #
 #	Parse the .gcov file and discount any unexecuted lines which are in if()
 #	blocks which are testing the result of alloc/malloc calls, or testing for

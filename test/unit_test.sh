@@ -18,6 +18,12 @@
 #   limitations under the License.
 #==================================================================================
 
+# LICENSE NOTE:
+# this code is based on the unit test code in the o-ran-sc RMR repositiory which
+# is covered by the original license above, and thus that license governs this
+# extension as well.
+# ---------------------------------------------------------------------------------
+
 #
 #	Mnemonic:	unit_test.sh
 #	Abstract:	This drives the unit tests and combs out the needed .gcov
