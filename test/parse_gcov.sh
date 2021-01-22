@@ -2,7 +2,6 @@
 # vim: ts=4 sw=4 noet :
 
 #==================================================================================
-#       Copyright (c) 2020 Nokia
 #       Copyright (c) 2020 AT&T Intellectual Property.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
