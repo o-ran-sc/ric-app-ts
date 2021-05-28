@@ -1,0 +1,25 @@
+This directory contains a few sample programs to demonstrante
+a dummy message exchange of the Traffic Steering use case.
+These programs are simple and in most of the cases error
+checking is not performed to keep them simple.
+
+ad_xapp.cpp
+    Simulates the AD xApp sending an Anomaly Message to the
+    TS xApp. It sends one message, receives its corresponding
+    ACK, and exits. All steps are logged in the console. Uses
+    RMR port 4570.
+
+qp_xapp.cpp
+    Simulates both, the QoE Prediction (QP), and the QP Driver xApps.
+    Basically, this program receives Prediction Requests from TS xApp,
+    computes random throughput values (predictions) for neighbor cells,
+    and sends that Throughput Prediction to the TS xApp. All steps are
+    logged in the console. Uses RMR port 4580.
+
+echo-server.py
+    Implements a dummy echo server just for testing REST calls from
+    TS xApp.
+
+routes.rt
+    Contains a few RMR routing policies to allow AD, QP, and TS xApps
+    exchange messages in this controlled environment.

@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2021 May 28 Version 1.1.0
+-------------------------
+        Changes to integrate with the traffic steering use case for Release D
+
 2020 Dec 8 Version 1.0.13
 -------------------------
         Small changes to integrate with RAN data written by KPIMON xApp

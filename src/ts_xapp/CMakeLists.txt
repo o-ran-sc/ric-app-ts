@@ -16,9 +16,9 @@
 #
 
 add_executable( ts_xapp ts_xapp.cpp )
-target_link_libraries( ts_xapp ricxfcpp;rmr_si;sdl;pthread )
+target_link_libraries( ts_xapp ricxfcpp;rmr_si;pthread;curl )
 
-install( 
+install(
     TARGETS ts_xapp
     DESTINATION ${install_bin}
 )

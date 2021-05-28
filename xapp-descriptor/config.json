@@ -7,7 +7,7 @@
                 "image": {
                     "registry": "nexus3.o-ran-sc.org:10002",
                     "name": "o-ran-sc/ric-app-ts",
-                    "tag": "1.0.13"
+                    "tag": "1.1.0"
                 }
             }
         ],
@@ -17,10 +17,10 @@
                     "name": "rmr-data",
                     "container": "trafficxapp",
                     "port": 4560,
-                    "rxMessages": [ 
-                    	"TS_QOE_PREDICTION",
-                    	"A1_POLICY_REQ",
-			"TS_ANOMALY_UPDATE"
+                    "rxMessages": [
+                        "TS_QOE_PREDICTION",
+                        "A1_POLICY_REQ",
+                        "TS_ANOMALY_UPDATE"
                     ],
                     "txMessages": [ "TS_UE_LIST", "TS_ANOMALY_ACK" ],
                     "policies": [20008],
@@ -40,12 +40,12 @@
             "numWorkers": 1,
             "txMessages": [
                 "TS_UE_LIST",
-		"TS_ANOMALY_ACK"
+                "TS_ANOMALY_ACK"
             ],
             "rxMessages": [
                 "TS_QOE_PREDICTION",
                 "A1_POLICY_REQ",
-		"TS_ANOMALY_UPDATE"		
+                "TS_ANOMALY_UPDATE"
             ],
             "policies": [20008]
         }

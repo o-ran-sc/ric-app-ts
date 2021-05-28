@@ -1,0 +1,10 @@
+newrt|start
+# TS xApp
+mse | 20010 | -1 | 127.0.1.1:4560 # policy callback
+mse | 30002 | -1 | 127.0.1.1:4560 # prediction callback
+mse | 30003 | -1 | 127.0.1.1:4560 # ad callback
+# AD xApp
+mse | 30004 | -1 | 127.0.1.1:4570 # ts callback
+# QP / QP Driver xApps
+mse | 30000 | -1 | 127.0.1.1:4580 # prediction callback
+newrt|end
