@@ -45,7 +45,8 @@ An example Policy follows:
 
 .. FIXME Is the "Serving Cell RSRP" related to "Degradation" in AD message
 
-This Policy instructs Traffic Steering xApp to monitor current RAN metrics and request a QoE Prediction for any UE whose Serving Cell RSRP is less than 5.
+This Policy instructs Traffic Steering xApp to request a QoE Prediction for any UE whose Serving Cell RSRP is less than 5.
+Traffic Steering logs each A1 Policy update.
 
 Receiving Anomaly Detection
 ===========================
@@ -78,6 +79,9 @@ The following is an example message body:
 .. code-block::
 
     { "UEPredictionSet": ["Train passenger 2"] }
+
+The current version of Traffic Steering xApp does not (yet) consider the A1 policy to generate QoE prediction requests.
+Each Anomaly Detection message received from AD xApp, results in a QoE Prediction Request to QP Driver xApp.
 
 Receiving QoE Prediction
 ========================
