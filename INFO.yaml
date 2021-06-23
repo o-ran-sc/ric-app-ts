@@ -34,11 +34,11 @@ repositories:
     - ric-app/ts
 committers:
     - <<: *oran_ric_app_ts_ptl
-    - name: 'Scott Daniels'
-      email: 'daniels@research.att.com'
-      company: 'ATT'
-      id: 'escottdaniels'
-      timezone: 'America/New_York'
+    - name: 'Alexandre Huff'
+      email: 'alexandrehuff@utfpr.edu.br'
+      company: 'UTFPR'
+      id: 'alexandrehuff'
+      timezone: 'America/Sao_Paulo'
     - name: 'Ron Shacham'
       email: 'rshacham@research.att.com'
       company: 'ATT'
@@ -53,6 +53,9 @@ tsc:
     # yamllint disable rule:line-length
     approval: 'https://wiki.o-ran-sc.org/display/TOC#ORANSCTechnicalOversightCommittee(TOC)-20200304'
     changes:
-        - type: ''
-          name: ''
-          link: ''
+        - type: 'Removal'
+          name: 'Scott Daniels'
+          link: 'https://lists.o-ran-sc.org/g/toc/topic/committer_change_in_ricapp/83477255?p=,,,20,0,0,0::recentpostdate%2Fsticky,,,20,2,0,83477255'
+        - type: 'Promotion'
+          name: 'Alexandre Huff'
+          link: 'https://lists.o-ran-sc.org/g/toc/topic/committer_change_in_ricapp/83477255?p=,,,20,0,0,0::recentpostdate%2Fsticky,,,20,2,0,83477255'
