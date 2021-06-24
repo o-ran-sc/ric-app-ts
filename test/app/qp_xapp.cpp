@@ -53,15 +53,13 @@ unique_ptr<Xapp> xfw;
 
 
 void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
+    string json ((char *) payload.get(), len);
+
     cout << "[QP] Prediction Callback got a message, type=" << mtype << ", length=" << len << "\n";
-    cout << "[QP] Payload is " << payload.get() << endl;
+    cout << "[QP] Payload is " << json << endl;
 
-    int randomNumber;
-    srand( (unsigned int) time(0) );
-
-    const char *json = (const char *) payload.get();
     Document document;
-    document.Parse(json);
+    document.Parse(json.c_str());
 
     const Value& uePred = document["UEPredictionSet"];
     if ( uePred.Size() > 0 ) {
@@ -78,11 +76,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
             }
         }
 
-        /*
-            we are sending a string, so we have to include the nil byte to send with RMR and keep
-            things simple in the receiver side
-        */
-        int len = body.size() + 1;
+        int len = body.size();
 
         cout << "[QP] Sending a message to TS, length=" << len << "\n";
         cout << "[QP] Message body " << body << endl;
@@ -95,6 +89,8 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
 int main(int argc, char const *argv[]) {
     int nthreads = 1;
+
+    srand( (unsigned int) time(0) );
 
     char* port = (char *) "4580";
 

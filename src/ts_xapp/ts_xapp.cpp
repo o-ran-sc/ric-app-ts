@@ -363,20 +363,19 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
   int response_to = 0;	 // max timeout wating for a response
   int rmtype;		// received message type
 
-  fprintf(stderr, "[INFO] Policy Callback got a message, type=%d, length=%d\n", mtype, len);
+  string arg ((const char*)payload.get(), len); // RMR payload might not have a nil terminanted char
 
-  const char *arg = (const char*)payload.get();
-
-  fprintf(stderr, "[INFO] Payload is %s\n", arg);
+  cout << "[INFO] Policy Callback got a message, type=" << mtype << ", length="<< len << "\n";
+  cout << "[INFO] Payload is " << arg << endl;
 
   PolicyHandler handler;
   Reader reader;
-  StringStream ss(arg);
+  StringStream ss(arg.c_str());
   reader.Parse(ss,handler);
 
   //Set the threshold value
   if (handler.found_threshold) {
-    fprintf(stderr, "[INFO] Setting RSRP Threshold to A1-P value: %d\n", handler.threshold);
+    cout << "[INFO] Setting RSRP Threshold to A1-P value: " << handler.threshold << endl;
     rsrp_threshold = handler.threshold;
   }
 
@@ -459,15 +458,15 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   int rmtype;							// received message type
   int delay = 1000000;				// mu-sec delay; default 1s
 
+  string json ((char *)payload.get(), len); // RMR payload might not have a nil terminanted char
+
   cout << "[INFO] Prediction Callback got a message, type=" << mtype << ", length=" << len << "\n";
-  cout << "[INFO] Payload is " << payload.get() << endl;
+  cout << "[INFO] Payload is " << json << endl;
 
-  const char* arg = (const char*)payload.get();
   PredictionHandler handler;
-
   try {
     Reader reader;
-    StringStream ss(arg);
+    StringStream ss(json.c_str());
     reader.Parse(ss,handler);
   } catch (...) {
     cout << "[ERROR] Got an exception on stringstream read parse\n";
@@ -584,16 +583,10 @@ void send_prediction_request( vector<string> ues_to_predict ) {
 
   string message_body = "{\"UEPredictionSet\": " + ues_list + "}";
 
-  const char *body = message_body.c_str();
-
   send_payload = msg->Get_payload(); // direct access to payload
-  snprintf( (char *) send_payload.get(), 2048, "%s", body );
+  snprintf( (char *) send_payload.get(), 2048, "%s", message_body.c_str() );
 
-  /*
-    we are sending a string, so we have to include the nil byte in the RMR message
-    to keep things simple in the receiver side
-   */
-  plen = strlen( (char *) send_payload.get() ) + 1;
+  plen = strlen( (char *)send_payload.get() );
 
   cout << "[INFO] Prediction Request length=" << plen << ", payload=" << send_payload.get() << endl;
 
@@ -609,14 +602,14 @@ void send_prediction_request( vector<string> ues_to_predict ) {
  * sends a prediction request to the QP Driver xApp.
  */
 void ad_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
-  const char *json = (const char *) payload.get();
+  string json ((char *)payload.get(), len); // RMR payload might not have a nil terminanted char
 
   cout << "[INFO] AD Callback got a message, type=" << mtype << ", length=" << len << "\n";
   cout << "[INFO] Payload is " << json << "\n";
 
   AnomalyHandler handler;
   Reader reader;
-  StringStream ss(json);
+  StringStream ss(json.c_str());
   reader.Parse(ss,handler);
 
   // just sending ACK to the AD xApp
