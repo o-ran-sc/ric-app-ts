@@ -42,8 +42,10 @@ using namespace xapp;
 unique_ptr<Xapp> xfw;
 
 void ts_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
+    string json ((char *)payload.get(), len);
+
     cout << "[AD] TS Callback got a message, type=" << mtype << ", length=" << len << "\n";
-    cout << "[AD] Payload  is  " << payload.get() << endl;
+    cout << "[AD] Payload  is  " << json << endl;
 
     // we only send one message, so we expect to receive only one as well
     xfw->Stop();
@@ -72,11 +74,7 @@ void ad_loop() {
     payload = msg->Get_payload();
     snprintf( (char *) payload.get(), 2048, "%s", ad_msg );
 
-    /*
-        we are sending a string, so we have to include the nil byte to send with RMR and keep
-        things simple in the receiver side
-   */
-    plen = strlen( (char *) payload.get() ) + 1;
+    plen = strlen( (char *) payload.get() );
     cout << "[AD] Sending a message to TS, length: " << plen << "\n";
     cout << "[AD] Message body " << payload.get() << endl;
 
