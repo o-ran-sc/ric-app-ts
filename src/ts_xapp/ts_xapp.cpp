@@ -31,6 +31,8 @@
 
   Modified: 21 May 2021 (Alexandre Huff)
             Update for traffic steering use case in release D.
+            07 Dec 2021 (Alexandre Huff)
+            Update for traffic steering use case in release E.
 */
 
 #include <stdio.h>
@@ -57,10 +59,21 @@
 #include <curl/curl.h>
 #include <rmr/RIC_message_types.h>
 #include "ricxfcpp/xapp.hpp"
+#include "ricxfcpp/config.hpp"
 
+/*
+  FIXME unfortunately this RMR flag has to be disabled
+  due to name resolution conflicts.
+  RC xApp defines the same name for gRPC control messages.
+*/
+#undef RIC_CONTROL_ACK
 
-// Defines env name for the endpoint to POST handoff control messages
-#define ENV_CONTROL_URL "TS_CONTROL_URL"
+#include <grpc/grpc.h>
+#include <grpcpp/channel.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/create_channel.h>
+#include <grpcpp/security/credentials.h>
+#include "../../ext/protobuf/api.grpc.pb.h"
 
 
 using namespace rapidjson;
@@ -75,13 +88,15 @@ using Keys = std::set<Key>;
 
 
 // ----------------------------------------------------------
-
-// Stores the the URL to POST handoff control messages
-const char *ts_control_url;
-
 std::unique_ptr<Xapp> xfw;
+std::unique_ptr<api::MsgComm::Stub> rc_stub;
 
 int rsrp_threshold = 0;
+
+// scoped enum to identify which API is used to send control messages
+enum class TsControlApi { REST, gRPC };
+TsControlApi ts_control_api;  // api to send control messages
+string ts_control_ep;         // api target endpoint
 
 /* struct UEData {
   string serving_cell;
@@ -391,9 +406,9 @@ size_t handoff_reply_callback( const char *in, size_t size, size_t num, string *
 }
 
 // sends a handover message through REST
-void send_handoff_request( string msg ) {
+void send_rest_control_request( string msg ) {
   CURL *curl = curl_easy_init();
-  curl_easy_setopt( curl, CURLOPT_URL, ts_control_url );
+  curl_easy_setopt( curl, CURLOPT_URL, ts_control_ep.c_str() );
   curl_easy_setopt( curl, CURLOPT_TIMEOUT, 10 );
   curl_easy_setopt( curl, CURLOPT_POST, 1L );
   // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -411,7 +426,7 @@ void send_handoff_request( string msg ) {
   headers = curl_slist_append( headers, "Content-Type: application/json" );
   curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers );
 
-  cout << "[INFO] Sending a HandOff CONTROL message to \"" << ts_control_url << "\"\n";
+  cout << "[INFO] Sending a HandOff CONTROL message to \"" << ts_control_ep << "\"\n";
   cout << "[INFO] HandOff request is " << msg << endl;
 
   // sending request
@@ -434,9 +449,9 @@ void send_handoff_request( string msg ) {
 
 
     } else if ( httpCode == 404 ) {
-      cout << "[ERROR] HTTP 404 Not Found: " << ts_control_url << endl;
+      cout << "[ERROR] HTTP 404 Not Found: " << ts_control_ep << endl;
     } else {
-      cout << "[ERROR] Unexpected HTTP code " << httpCode << " from " << ts_control_url << \
+      cout << "[ERROR] Unexpected HTTP code " << httpCode << " from " << ts_control_ep << \
               "\n[ERROR] HTTP payload is " << httpData.get()->c_str() << endl;
     }
 
@@ -444,6 +459,47 @@ void send_handoff_request( string msg ) {
 
   curl_slist_free_all( headers );
   curl_easy_cleanup( curl );
+}
+
+// sends a handover message to RC xApp through gRPC
+void send_grpc_control_request() {
+  grpc::ClientContext context;
+  api::RicControlGrpcReq *request = api::RicControlGrpcReq().New();
+  api::RicControlGrpcRsp response;
+
+  api::RICE2APHeader *apHeader = api::RICE2APHeader().New();
+  api::RICControlHeader *ctrlHeader = api::RICControlHeader().New();
+  api::RICControlMessage *ctrlMsg = api::RICControlMessage().New();
+
+  request->set_e2nodeid("e2nodeid");
+  request->set_plmnid("plmnid");
+  request->set_ranname("ranname");
+  request->set_allocated_rice2apheaderdata(apHeader);
+  request->set_allocated_riccontrolheaderdata(ctrlHeader);
+  request->set_allocated_riccontrolmessagedata(ctrlMsg);
+  request->set_riccontrolackreqval(api::RIC_CONTROL_ACK_UNKWON);  // not yet used in api.proto
+
+  grpc::Status status = rc_stub->SendRICControlReqServiceGrpc(&context, *request, &response);
+
+  if(status.ok()) {
+    /*
+      TODO check if this is related to RICControlAckEnum
+      if yes, then ACK value should be 2 (RIC_CONTROL_ACK)
+      api.proto assumes that 0 is an ACK
+    */
+    if(response.rspcode() == 0) {
+      cout << "[INFO] Control Request succeeded with code=0, description=" << response.description() << endl;
+    } else {
+      cout << "[ERROR] Control Request failed with code=" << response.rspcode()
+           << ", description=" << response.description() << endl;
+    }
+
+  } else {
+    cout << "[ERROR] failed to send a RIC Control Request message to RC xApp, error_code="
+         << status.error_code() << ", error_msg=" << status.error_message() << endl;
+  }
+
+  // FIXME needs to check about memory likeage
 }
 
 void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
@@ -456,7 +512,7 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
   int send_mtype = 0;
   int rmtype;							// received message type
-  int delay = 1000000;				// mu-sec delay; default 1s
+  int delay = 1000000;		// mu-sec delay; default 1s
 
   string json ((char *)payload.get(), len); // RMR payload might not have a nil terminanted char
 
@@ -543,7 +599,11 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
     } */
 
     // sending a control request message
-    send_handoff_request( s.GetString() );
+    if ( ts_control_api == TsControlApi::REST ) {
+      send_rest_control_request( s.GetString() );
+    } else {
+      send_grpc_control_request();
+    }
 
   } else {
     cout << "[INFO] The current serving cell \"" << handler.serving_cell_id << "\" is the best one" << endl;
@@ -624,12 +684,23 @@ extern int main( int argc, char** argv ) {
 
   int nthreads = 1;
   char*	port = (char *) "4560";
+  shared_ptr<grpc::Channel> channel;
 
-  // ts_control_url = "http://127.0.0.1:5000/api/echo"; // echo-server in test/app/ directory
-  if ( ( ts_control_url = getenv( ENV_CONTROL_URL ) ) == nullptr ) {
-    cout << "[ERROR] TS_CONTROL_URL is not defined to POST handoff control messages" << endl;
-    return 1;
+  Config *config = new Config();
+  string api = config->Get_control_str("ts_control_api");
+  ts_control_ep = config->Get_control_str("ts_control_ep");
+  if ( api.empty() ) {
+    cout << "[ERROR] a control api (rest/grpc) is required in xApp descriptor\n";
+    exit(1);
   }
+  if ( api.compare("rest") == 0 ) {
+    ts_control_api = TsControlApi::REST;
+  } else {
+    ts_control_api = TsControlApi::gRPC;
+  }
+
+  channel = grpc::CreateChannel(ts_control_ep, grpc::InsecureChannelCredentials());
+  rc_stub = api::MsgComm::NewStub(channel, grpc::StubOptions());
 
   fprintf( stderr, "[TS xApp] listening on port %s\n", port );
   xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) );

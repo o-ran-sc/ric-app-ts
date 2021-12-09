@@ -31,7 +31,7 @@
 
 # the builder has: git, wget, cmake, gcc/g++, make, python2/3. v7 dropped nng support
 #
-FROM nexus3.o-ran-sc.org:10002/o-ran-sc/bldr-ubuntu18-c-go:1.9.0 as buildenv
+FROM nexus3.o-ran-sc.org:10002/o-ran-sc/bldr-ubuntu20-c-go:1.0.0 as buildenv
 
 # spaces to save things in the build image to copy to final image
 RUN mkdir -p /playpen/assets /playpen/src /playpen/bin
@@ -74,9 +74,11 @@ RUN git clone https://github.com/Tencent/rapidjson && \
    cd ${STAGE_DIR} && \
    rm -rf rapidjson
 
-# install TS curl dependencies
-RUN apt-get update && \
-	apt-get install -y libcurl4-openssl-dev
+# install curl and gRPC dependencies
+RUN apt-get update && apt-get install -y \
+	libcurl4-openssl-dev \
+	libprotobuf-dev \
+	libgrpc++-dev
 
 #
 # build and install the application(s)
@@ -99,7 +101,7 @@ COPY assets/bootstrap.rt /playpen/assets
 
 
 # -----  create final, smaller, image ----------------------------------
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # # package cloud urls for wget
 # ARG PC_REL_URL=https://packagecloud.io/o-ran-sc/release/packages/debian/stretch
@@ -116,10 +118,13 @@ FROM ubuntu:18.04
 
 # RUN rm -fr /var/lib/apt/lists
 
-# install TS curl dependencies in the final image
-RUN apt-get update && \
-	apt-get install -y libcurl4-openssl-dev && \
-	apt-get clean
+# install curl and gRPC dependencies in the final image
+RUN apt-get update && apt-get install -y \
+	libcurl4-openssl-dev \
+	libprotobuf-dev \
+	libgrpc++-dev && \
+	rm -rf /var/lib/apt/lists/*
+
 
 # snarf the various sdl, rmr, and cpp-framework libraries as well as any binaries
 # created (e.g. rmr_rprobe) and the application binary itself
@@ -142,8 +147,5 @@ ENV RMR_SEED_RT=/data/bootstrap.rt
 ENV RMR_SRC_ID=service-ricxapp-trafficxapp-rmr.ricxapp:4560
 ENV RMR_VCTL_FILE=/tmp/rmr.v
 RUN echo "2" >/tmp/rmr.v
-
-# set TS env vars
-ENV TS_CONTROL_URL=http://localhost:5000/api/echo
 
 CMD [ "/usr/local/bin/ts_xapp" ]

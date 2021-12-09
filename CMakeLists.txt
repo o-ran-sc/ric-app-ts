@@ -93,6 +93,9 @@ else()
 endif()
 unset( GPROF CACHE )					# ensure this does not persist
 
+# protobuf and grpc stufs
+add_subdirectory( ext/protobuf )
+
 # each binary is built from a subset
 add_subdirectory( src/ts_xapp )
 

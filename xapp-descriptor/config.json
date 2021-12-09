@@ -1,13 +1,13 @@
 {
         "xapp_name": "trafficxapp",
-        "version": "1.0.0",
+        "version": "1.2.0",
         "containers": [
             {
                 "name": "trafficxapp",
                 "image": {
                     "registry": "nexus3.o-ran-sc.org:10002",
                     "name": "o-ran-sc/ric-app-ts",
-                    "tag": "1.1.1"
+                    "tag": "1.2.0"
                 }
             }
         ],
@@ -24,13 +24,13 @@
                     ],
                     "txMessages": [ "TS_UE_LIST", "TS_ANOMALY_ACK" ],
                     "policies": [20008],
-                    "description": "rmr receive data port for mcxapp"
+                    "description": "rmr receive data port for trafficxapp"
                 },
                 {
                     "name": "rmr-route",
                     "container": "trafficxapp",
                     "port": 4561,
-                    "description": "rmr route port for mcxapp"
+                    "description": "rmr route port for trafficxapp"
                 }
             ]
         },
@@ -48,5 +48,10 @@
                 "TS_ANOMALY_UPDATE"
             ],
             "policies": [20008]
+        },
+        "controls": {
+            "ts_control_api": "grpc",
+            "ts_control_ep": "localhost:50051"
         }
+
     }

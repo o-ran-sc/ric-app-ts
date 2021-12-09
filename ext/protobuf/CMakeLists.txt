@@ -15,47 +15,8 @@
 #    limitations under the License.
 # ==================================================================================
 #
-# 	Date:     20 May 2021
+# 	Date:     07 Dec 2021
 # 	Author:   Alexandre Huff
 
-
-cmake_minimum_required(VERSION 3.14)
-project(test_apps)
-set(CMAKE_CXX_STANDARD 11)
-
-add_executable(
-  ad_xapp
-  ad_xapp.cpp
-)
-target_link_libraries(
-  ad_xapp
-  ricxfcpp
-  rmr_si
-  pthread
-  curl
-)
-
-add_executable(
-  qp_xapp
-  qp_xapp.cpp
-)
-target_link_libraries(
-  qp_xapp
-  ricxfcpp
-  rmr_si
-  pthread
-  curl
-)
-
-find_package(Protobuf REQUIRED)
-add_subdirectory(${CMAKE_SOURCE_DIR}/../../ext/protobuf EXCLUDED_FROM_ALL)
-add_executable(
-  rc_xapp
-  rc_xapp.cpp
-)
-target_link_libraries(
-  rc_xapp
-  rc-api
-  grpc++
-  ${Protobuf_LIBRARY}
-)
+add_library( rc-api STATIC api.pb.h api.pb.cc api.grpc.pb.h api.grpc.pb.cc )
+target_include_directories( rc-api PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

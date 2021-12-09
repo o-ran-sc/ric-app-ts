@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2021 Dec 8 Version 1.2.0
+--------------------------
+        Update TS xApp for Release E use case and changes to integrate with RC xApp
+
 2021 June 24 Version 1.1.1
 --------------------------
         Fixes the extra nil character sent in RMR payload and other potential bugs
