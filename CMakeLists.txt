@@ -33,8 +33,8 @@ project( ricxfcpp )
 cmake_minimum_required( VERSION 3.14 )
 
 set( major_version "1" )		# until CI supports auto tagging; must hard set
-set( minor_version "1" )
-set( patch_level "1" )
+set( minor_version "2" )
+set( patch_level "0" )
 
 set( install_root "${CMAKE_INSTALL_PREFIX}" )
 set( install_inc "/usr/local/include" )
