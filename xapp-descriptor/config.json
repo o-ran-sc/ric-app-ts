@@ -1,13 +1,13 @@
 {
         "xapp_name": "trafficxapp",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "containers": [
             {
                 "name": "trafficxapp",
                 "image": {
                     "registry": "nexus3.o-ran-sc.org:10002",
                     "name": "o-ran-sc/ric-app-ts",
-                    "tag": "1.2.0"
+                    "tag": "1.2.1"
                 }
             }
         ],

@@ -40,9 +40,9 @@ ARG SRC=.
 WORKDIR /playpen
 
 # versions we snarf from package cloud
-ARG RMR_VER=4.7.4
+ARG RMR_VER=4.8.1
 # ARG SDL_VER=1.0.4
-ARG XFCPP_VER=2.3.3
+ARG XFCPP_VER=2.3.6
 
 # package cloud urls for wget
 ARG PC_REL_URL=https://packagecloud.io/o-ran-sc/release/packages/debian/stretch

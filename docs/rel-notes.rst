@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2022 Feb 9 Version 1.2.1
+--------------------------
+        Update both xapp-frame-cpp and RMR dependencies
+
 2021 Dec 8 Version 1.2.0
 --------------------------
         Update TS xApp for Release E use case and changes to integrate with RC xApp
