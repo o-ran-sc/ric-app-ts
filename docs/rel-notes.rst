@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2022 Mar 26 Version 1.2.2
+--------------------------
+        Fix dummy values in gRPC message sent to RC xApp
+
 2022 Feb 9 Version 1.2.1
 --------------------------
         Update both xapp-frame-cpp and RMR dependencies
