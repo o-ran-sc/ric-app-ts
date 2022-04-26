@@ -1,10 +1,10 @@
 ---
 distribution_type: container
-container_release_tag: 1.2.1
+container_release_tag: 1.2.2
 container_pull_registry: nexus3.o-ran-sc.org:10004
 container_push_registry: nexus3.o-ran-sc.org:10002
 project: ric-app/ts
-ref: d882f29393c41dc1a7508530baefa395a2968a04
+ref: 11a46a4ddf9a5ee409a3ca7686f458ae7de9dadb
 containers:
     - name: ric-app-ts
-      version: 1.2.1
+      version: 1.2.2
