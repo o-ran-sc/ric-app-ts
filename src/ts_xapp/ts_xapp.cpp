@@ -56,10 +56,9 @@
 #include <rapidjson/reader.h>
 #include <rapidjson/prettywriter.h>
 
-#include <curl/curl.h>
 #include <rmr/RIC_message_types.h>
-#include "ricxfcpp/xapp.hpp"
-#include "ricxfcpp/config.hpp"
+#include <ricxfcpp/xapp.hpp>
+#include <ricxfcpp/config.hpp>
 
 /*
   FIXME unfortunately this RMR flag has to be disabled
@@ -73,7 +72,9 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include "../../ext/protobuf/api.grpc.pb.h"
+#include "protobuf/api.grpc.pb.h"
+
+#include "utils/restclient.hpp"
 
 
 using namespace rapidjson;
@@ -97,6 +98,16 @@ int rsrp_threshold = 0;
 enum class TsControlApi { REST, gRPC };
 TsControlApi ts_control_api;  // api to send control messages
 string ts_control_ep;         // api target endpoint
+
+typedef struct nodeb {
+  string ran_name;
+  struct {
+    string plmn_id;
+    string nb_id;
+  } global_nb_id;
+} nodeb_t;
+
+unordered_map<string, shared_ptr<nodeb_t>> cell_map; // maps each cell to its nodeb
 
 /* struct UEData {
   string serving_cell;
@@ -242,6 +253,47 @@ struct AnomalyHandler : public BaseReaderHandler<UTF8<>, AnomalyHandler> {
     }
     return true;
   }
+};
+
+struct NodebListHandler : public BaseReaderHandler<UTF8<>, NodebListHandler> {
+  vector<string> nodeb_list;
+  string curr_key = "";
+
+  bool Key(const Ch* str, SizeType length, bool copy) {
+    curr_key = str;
+    return true;
+  }
+
+  bool String(const Ch* str, SizeType length, bool copy) {
+    if( curr_key.compare( "inventoryName" ) == 0 ) {
+      nodeb_list.push_back( str );
+    }
+    return true;
+  }
+};
+
+struct NodebHandler : public BaseReaderHandler<UTF8<>, NodebHandler> {
+  string curr_key = "";
+  shared_ptr<nodeb_t> nodeb = make_shared<nodeb_t>();
+
+  bool Key(const Ch* str, SizeType length, bool copy) {
+    curr_key = str;
+    return true;
+  }
+
+  bool String(const Ch* str, SizeType length, bool copy) {
+    if( curr_key.compare( "ranName" ) == 0 ) {
+      nodeb->ran_name = str;
+    } else if( curr_key.compare( "plmnId" ) == 0 ) {
+      nodeb->global_nb_id.plmn_id = str;
+    } else if( curr_key.compare( "nbId" ) == 0 ) {
+      nodeb->global_nb_id.nb_id = str;
+    } else if( curr_key.compare( "cellId" ) == 0 ) {
+      cell_map[str] = nodeb;
+    }
+    return true;
+  }
+
 };
 
 
@@ -394,100 +446,116 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
     rsrp_threshold = handler.threshold;
   }
 
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
-  mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
-}
-
-// callback to handle handover reply (json http response)
-size_t handoff_reply_callback( const char *in, size_t size, size_t num, string *out ) {
-  const size_t totalBytes( size * num );
-  out->append( in, totalBytes );
-  return totalBytes;
 }
 
 // sends a handover message through REST
-void send_rest_control_request( string msg ) {
-  CURL *curl = curl_easy_init();
-  curl_easy_setopt( curl, CURLOPT_URL, ts_control_ep.c_str() );
-  curl_easy_setopt( curl, CURLOPT_TIMEOUT, 10 );
-  curl_easy_setopt( curl, CURLOPT_POST, 1L );
-  // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+void send_rest_control_request( string ue_id, string serving_cell_id, string target_cell_id ) {
+  time_t now;
+  string str_now;
+  static unsigned int seq_number = 0; // static counter, not thread-safe
 
-  // response information
-  long httpCode( 0 );
-  unique_ptr<string> httpData( new string() );
+  // building a handoff control message
+  now = time( nullptr );
+  str_now = ctime( &now );
+  str_now.pop_back(); // removing the \n character
 
-  curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, handoff_reply_callback );
-  curl_easy_setopt( curl, CURLOPT_WRITEDATA, httpData.get());
-  curl_easy_setopt( curl, CURLOPT_POSTFIELDS, msg.c_str() );
+  seq_number++;       // static counter, not thread-safe
 
-  struct curl_slist *headers = NULL;  // needs to free this after easy perform
-  headers = curl_slist_append( headers, "Accept: application/json" );
-  headers = curl_slist_append( headers, "Content-Type: application/json" );
-  curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers );
+  rapidjson::StringBuffer s;
+  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+  writer.StartObject();
+  writer.Key( "command" );
+  writer.String( "HandOff" );
+  writer.Key( "seqNo" );
+  writer.Int( seq_number );
+  writer.Key( "ue" );
+  writer.String( ue_id.c_str() );
+  writer.Key( "fromCell" );
+  writer.String( serving_cell_id.c_str() );
+  writer.Key( "toCell" );
+  writer.String( target_cell_id.c_str() );
+  writer.Key( "timestamp" );
+  writer.String( str_now.c_str() );
+  writer.Key( "reason" );
+  writer.String( "HandOff Control Request from TS xApp" );
+  writer.Key( "ttl" );
+  writer.Int( 10 );
+  writer.EndObject();
+  // creates a message like
+  /* {
+    "command": "HandOff",
+    "seqNo": 1,
+    "ue": "ueid-here",
+    "fromCell": "CID1",
+    "toCell": "CID3",
+    "timestamp": "Sat May 22 10:35:33 2021",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+  } */
+
+  string msg = s.GetString();
 
   cout << "[INFO] Sending a HandOff CONTROL message to \"" << ts_control_ep << "\"\n";
   cout << "[INFO] HandOff request is " << msg << endl;
 
   // sending request
-  CURLcode res = curl_easy_perform( curl );
-  if( res != CURLE_OK ) {
-    cout << "[ERROR] curl_easy_perform() failed: " << curl_easy_strerror( res ) << endl;
+  restclient::RestClient client( ts_control_ep );
+  restclient::response_t resp = client.do_post( "", msg ); // we already have the full path in ts_control_ep
 
-  } else {
-
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-    if( httpCode == 200 ) {
+  if( resp.status_code == 200 ) {
       // ============== DO SOMETHING USEFUL HERE ===============
       // Currently, we only print out the HandOff reply
       rapidjson::Document document;
-      document.Parse( httpData.get()->c_str() );
+      document.Parse( resp.body.c_str() );
       rapidjson::StringBuffer s;
 	    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
       document.Accept( writer );
       cout << "[INFO] HandOff reply is " << s.GetString() << endl;
 
-
-    } else if ( httpCode == 404 ) {
-      cout << "[ERROR] HTTP 404 Not Found: " << ts_control_ep << endl;
-    } else {
-      cout << "[ERROR] Unexpected HTTP code " << httpCode << " from " << ts_control_ep << \
-              "\n[ERROR] HTTP payload is " << httpData.get()->c_str() << endl;
-    }
-
+  } else {
+      cout << "[ERROR] Unexpected HTTP code " << resp.status_code << " from " << \
+              client.getBaseUrl() << \
+              "\n[ERROR] HTTP payload is " << resp.body.c_str() << endl;
   }
 
-  curl_slist_free_all( headers );
-  curl_easy_cleanup( curl );
 }
 
 // sends a handover message to RC xApp through gRPC
-void send_grpc_control_request() {
+void send_grpc_control_request( string ue_id, string target_cell_id ) {
   grpc::ClientContext context;
-  api::RicControlGrpcReq *request = api::RicControlGrpcReq().New();
+
   api::RicControlGrpcRsp response;
+  shared_ptr<api::RicControlGrpcReq> request = make_shared<api::RicControlGrpcReq>();
 
-  api::RICE2APHeader *apHeader = api::RICE2APHeader().New();
-  api::RICControlHeader *ctrlHeader = api::RICControlHeader().New();
-  api::RICControlMessage *ctrlMsg = api::RICControlMessage().New();
+  api::RICE2APHeader *apHeader = request->mutable_rice2apheaderdata();
+  apHeader->set_ranfuncid( 300 );
+  apHeader->set_ricrequestorid( 1001 );
 
-  request->set_e2nodeid("e2nodeid");
-  request->set_plmnid("plmnid");
-  request->set_ranname("ranname");
-  request->set_allocated_rice2apheaderdata(apHeader);
-  request->set_allocated_riccontrolheaderdata(ctrlHeader);
-  request->set_allocated_riccontrolmessagedata(ctrlMsg);
-  request->set_riccontrolackreqval(api::RIC_CONTROL_ACK_UNKWON);  // not yet used in api.proto
+  api::RICControlHeader *ctrlHeader = request->mutable_riccontrolheaderdata();
+  ctrlHeader->set_controlstyle( 3 );
+  ctrlHeader->set_controlactionid( 1 );
+  ctrlHeader->set_ueid( ue_id );
 
-  grpc::Status status = rc_stub->SendRICControlReqServiceGrpc(&context, *request, &response);
+  api::RICControlMessage *ctrlMsg = request->mutable_riccontrolmessagedata();
+  ctrlMsg->set_riccontrolcelltypeval( api::RIC_CONTROL_CELL_UNKWON );
+  ctrlMsg->set_targetcellid( target_cell_id );
 
-  if(status.ok()) {
-    /*
-      TODO check if this is related to RICControlAckEnum
-      if yes, then ACK value should be 2 (RIC_CONTROL_ACK)
-      api.proto assumes that 0 is an ACK
-    */
-    if(response.rspcode() == 0) {
+  auto data = cell_map.find( target_cell_id );
+  if( data != cell_map.end() ) {
+    request->set_e2nodeid( data->second->global_nb_id.nb_id );
+    request->set_plmnid( data->second->global_nb_id.plmn_id );
+    request->set_ranname( data->second->ran_name );
+  } else {
+    request->set_e2nodeid( "unknown_e2nodeid" );
+    request->set_plmnid( "unknown_plmnid" );
+    request->set_ranname( "unknown_ranname" );
+  }
+  request->set_riccontrolackreqval( api::RIC_CONTROL_ACK_UNKWON );  // not yet used in api.proto
+
+  grpc::Status status = rc_stub->SendRICControlReqServiceGrpc( &context, *request, &response );
+
+  if( status.ok() ) {
+    if( response.rspcode() == 0 ) {
       cout << "[INFO] Control Request succeeded with code=0, description=" << response.description() << endl;
     } else {
       cout << "[ERROR] Control Request failed with code=" << response.rspcode()
@@ -499,21 +567,9 @@ void send_grpc_control_request() {
          << status.error_code() << ", error_msg=" << status.error_message() << endl;
   }
 
-  // FIXME needs to check about memory likeage
 }
 
 void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
-
-  time_t now;
-  string str_now;
-  static unsigned int seq_number = 0; // static counter, not thread-safe
-
-  int response_to = 0;	 // max timeout wating for a response
-
-  int send_mtype = 0;
-  int rmtype;							// received message type
-  int delay = 1000000;		// mu-sec delay; default 1s
-
   string json ((char *)payload.get(), len); // RMR payload might not have a nil terminanted char
 
   cout << "[INFO] Prediction Callback got a message, type=" << mtype << ", length=" << len << "\n";
@@ -559,64 +615,23 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
   }
 
   if ( highest_throughput > serving_cell_throughput ) {
-    // building a handoff control message
-    now = time( nullptr );
-    str_now = ctime( &now );
-    str_now.pop_back(); // removing the \n character
-
-    seq_number++;       // static counter, not thread-safe
-
-    rapidjson::StringBuffer s;
-	  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
-    writer.StartObject();
-    writer.Key( "command" );
-    writer.String( "HandOff" );
-    writer.Key( "seqNo" );
-    writer.Int( seq_number );
-    writer.Key( "ue" );
-    writer.String( handler.ue_id.c_str() );
-    writer.Key( "fromCell" );
-    writer.String( handler.serving_cell_id.c_str() );
-    writer.Key( "toCell" );
-    writer.String( highest_throughput_cell_id.c_str() );
-    writer.Key( "timestamp" );
-    writer.String( str_now.c_str() );
-    writer.Key( "reason" );
-    writer.String( "HandOff Control Request from TS xApp" );
-    writer.Key( "ttl" );
-    writer.Int( 10 );
-    writer.EndObject();
-    // creates a message like
-    /* {
-      "command": "HandOff",
-      "seqNo": 1,
-      "ue": "ueid-here",
-      "fromCell": "CID1",
-      "toCell": "CID3",
-      "timestamp": "Sat May 22 10:35:33 2021",
-      "reason": "HandOff Control Request from TS xApp",
-      "ttl": 10
-    } */
 
     // sending a control request message
     if ( ts_control_api == TsControlApi::REST ) {
-      send_rest_control_request( s.GetString() );
+      send_rest_control_request( handler.ue_id, handler.serving_cell_id, highest_throughput_cell_id );
     } else {
-      send_grpc_control_request();
+      send_grpc_control_request( handler.ue_id, highest_throughput_cell_id );
     }
 
   } else {
     cout << "[INFO] The current serving cell \"" << handler.serving_cell_id << "\" is the best one" << endl;
   }
 
-  // mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK1\n" );	// validate that we can use the same buffer for 2 rts calls
-  // mbuf.Send_response( 101, -1, 5, (unsigned char *) "OK2\n" );
 }
 
 void send_prediction_request( vector<string> ues_to_predict ) {
-
   std::unique_ptr<Message> msg;
-  Msg_component payload;                                // special type of unique pointer to the payload
+  Msg_component payload;           // special type of unique pointer to the payload
 
   int sz;
   int i;
@@ -661,7 +676,7 @@ void send_prediction_request( vector<string> ues_to_predict ) {
  * It parses the payload received from AD xApp, sends an ACK with same UEID as payload to AD xApp, and
  * sends a prediction request to the QP Driver xApp.
  */
-void ad_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
+void ad_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload, void* data ) {
   string json ((char *)payload.get(), len); // RMR payload might not have a nil terminanted char
 
   cout << "[INFO] AD Callback got a message, type=" << mtype << ", length=" << len << "\n";
@@ -675,13 +690,75 @@ void ad_callback( Message& mbuf, int mtype, int subid, int len, Msg_component pa
   // just sending ACK to the AD xApp
   mbuf.Send_response( TS_ANOMALY_ACK, Message::NO_SUBID, len, nullptr );  // msg type 30004
 
-  // TODO should we use the threshold received in the A1_POLICY_REQ message and compare with Degradation in TS_ANOMALY_UPDATE?
-  // if( handler.degradation < rsrp_threshold )
   send_prediction_request(handler.prediction_ues);
 }
 
-extern int main( int argc, char** argv ) {
+vector<string> get_nodeb_list( restclient::RestClient& client ) {
 
+  restclient::response_t response = client.do_get( "/v1/nodeb/states" );
+
+  NodebListHandler handler;
+  if( response.status_code == 200 ) {
+    Reader reader;
+    StringStream ss( response.body.c_str() );
+    reader.Parse( ss, handler );
+
+    cout << "[INFO] nodeb list is " << response.body.c_str() << endl;
+
+  } else {
+    if( response.body.empty() ) {
+      cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << client.getBaseUrl() << endl;
+    } else {
+      cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << client.getBaseUrl() <<
+              ". HTTP payload is " << response.body.c_str() << endl;
+    }
+  }
+
+  return handler.nodeb_list;
+}
+
+bool build_cell_mapping() {
+  string base_url;
+  char *data = getenv( "SERVICE_E2MGR_HTTP_BASE_URL" );
+  if ( data == NULL ) {
+    base_url = "http://service-ricplt-e2mgr-http.ricplt:3800";
+  } else {
+    base_url = string( data );
+  }
+
+  restclient::RestClient client( base_url );
+
+  vector<string> nb_list = get_nodeb_list( client );
+
+  for( string nb : nb_list ) {
+    string full_path = string("/v1/nodeb/") + nb;
+    restclient::response_t response = client.do_get( full_path );
+    if( response.status_code != 200 ) {
+      if( response.body.empty() ) {
+        cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
+                client.getBaseUrl() + full_path << endl;
+      } else {
+        cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
+              client.getBaseUrl() + full_path << ". HTTP payload is " << response.body.c_str() << endl;
+      }
+      return false;
+    }
+
+    try {
+      NodebHandler handler;
+      Reader reader;
+      StringStream ss( response.body.c_str() );
+      reader.Parse( ss, handler );
+    } catch (...) {
+      cout << "[ERROR] Got an exception on parsing nodeb (stringstream read parse)\n";
+      return false;
+    }
+  }
+
+  return true;
+}
+
+extern int main( int argc, char** argv ) {
   int nthreads = 1;
   char*	port = (char *) "4560";
   shared_ptr<grpc::Channel> channel;
@@ -697,10 +774,14 @@ extern int main( int argc, char** argv ) {
     ts_control_api = TsControlApi::REST;
   } else {
     ts_control_api = TsControlApi::gRPC;
-  }
 
-  channel = grpc::CreateChannel(ts_control_ep, grpc::InsecureChannelCredentials());
-  rc_stub = api::MsgComm::NewStub(channel, grpc::StubOptions());
+    if( !build_cell_mapping() ) {
+      cout << "[ERROR] unable to map cells to nodeb\n";
+    }
+
+    channel = grpc::CreateChannel(ts_control_ep, grpc::InsecureChannelCredentials());
+    rc_stub = api::MsgComm::NewStub(channel, grpc::StubOptions());
+  }
 
   fprintf( stderr, "[TS xApp] listening on port %s\n", port );
   xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) );

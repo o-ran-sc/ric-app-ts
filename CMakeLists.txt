@@ -34,7 +34,7 @@ cmake_minimum_required( VERSION 3.14 )
 
 set( major_version "1" )		# until CI supports auto tagging; must hard set
 set( minor_version "2" )
-set( patch_level "1" )
+set( patch_level "2" )
 
 set( install_root "${CMAKE_INSTALL_PREFIX}" )
 set( install_inc "/usr/local/include" )
@@ -79,22 +79,30 @@ add_definitions(
 	-DDEBUG=${debugging}
 )
 
+
+# bleeding cmake names are short novels; and when lines cannot be split they're a pain
+set ( srcd "${CMAKE_CURRENT_SOURCE_DIR}" )
+
+
 # Compiler flags
 #
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 if( GPROF )					# if set, we'll set profiling flag on compiles
 	message( "+++ profiling is on" )
 	set( CMAKE_C_FLAGS "-pg " )
-	set( CMAKE_CPP_FLAGS "-pg " )
+	set( CMAKE_CXX_FLAGS "-pg " )
 else()
 	set( CMAKE_C_FLAGS "-g " )
-	set( CMAKE_CPP_FLAGS "-g " )
+	set( CMAKE_CXX_FLAGS "-g " )
 	message( "+++ profiling is off" )
 endif()
 unset( GPROF CACHE )					# ensure this does not persist
 
 # protobuf and grpc stufs
 add_subdirectory( ext/protobuf )
+
+# general stufs
+add_subdirectory( src/utils )
 
 # each binary is built from a subset
 add_subdirectory( src/ts_xapp )

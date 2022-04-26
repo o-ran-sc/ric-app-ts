@@ -24,9 +24,10 @@ The current Use Case is comprised of five xApps:
 
 * KPI Monitoring xApp: Gathers the radio and system Key Performance Indicators (KPI) metrics from E2 Nodes and stores them in the Shared Data Layer (SDL).
 * Anomaly Detection (AD) xApp: Fetches UE data regularly from SDL, monitors UE metrics and sends the anomalous UEs to Traffic Steering xApp.
-* Traffic Steering xApp (*this one*): Consumes A1 Policy Intent, listens for badly performing UEs, sends prediction requests to QP Driver, and listens for messages that show UE throughput predictions in different cells to make a decision about UE Handover.
-* QoE Prediction Driver (QP Driver) xApp: Generates a feature set of metrics to input to QoE Prediction, based on SDL lookups in UE-Metric and Cell-Metric namespaces.
-* QoE Prediction (QP) xApp: Receives a feature set of metrics for a given UE, and output Throughput predictions on the Serving and any Neighbor cells to Traffic Steering xApp.
+* Traffic Steering xApp (*this one*): Consumes A1 Policy Intent, listens for badly performing UEs, sends prediction requests to QP xApp, and listens for messages from QP that show UE throughput predictions in different cells to make decisions about UE Handover.
+* QoE Prediction (QP) xApp: Generates a feature set of metrics based on SDL lookups in UE-Metric and Cell-Metric namespaces for a given UE, and outputs Throughput predictions on the Serving and any Neighbor cells to the Traffic Steering xApp.
+* RAN Control (RC) xApp: Provides basic implementation of spec compliant E2-SM RC to send RIC Control Request messages to RAN/E2 Nodes.
+
 
 A1 Policy
 =========
@@ -43,10 +44,7 @@ An example Policy follows:
 
     { "threshold": 5 }
 
-.. FIXME Is the "Serving Cell RSRP" related to "Degradation" in AD message
-
-This Policy instructs Traffic Steering xApp to request a QoE Prediction for any UE whose Serving Cell RSRP is less than 5.
-Traffic Steering logs each A1 Policy update.
+This Policy instructs Traffic Steering xApp to hand-off any UE whose downlink throughput of its current serving cell is 5% below the throughput of any neighboring cell.
 
 Receiving Anomaly Detection
 ===========================
@@ -70,8 +68,9 @@ The following is an example message body:
 Sending QoE Prediction Request
 ==============================
 
-Traffic Steering listens for badly performing UEs. When it identifies a UE whose RSRP is below the threshold, it generates
-a QoE Prediction Request message and sends it to the QP Driver xApp. The RMR Message Type is 30000.
+Traffic Steering listens for badly performing UEs.
+Each Anomaly Detection message received from AD xApp, results in a QoE Prediction Request to QP xApp.
+The RMR Message Type is 30000.
 The following is an example message body:
 
 .. {"UEPredictionSet" : ["12345"]}
@@ -79,9 +78,6 @@ The following is an example message body:
 .. code-block::
 
     { "UEPredictionSet": ["Train passenger 2"] }
-
-The current version of Traffic Steering xApp does not (yet) consider the A1 policy to generate QoE prediction requests.
-Each Anomaly Detection message received from AD xApp, results in a QoE Prediction Request to QP Driver xApp.
 
 Receiving QoE Prediction
 ========================
@@ -105,7 +101,10 @@ This message provides predictions for UE ID "Train passenger 2".  For its servic
 Traffic Steering xApp checks for the Service Cell ID for UE ID, and determines whether the predicted throughput is higher in a neighbor cell.
 The first cell in this prediction message is assumed to be the serving cell.
 
-If predicted throughput is higher in a neighbor cell, Traffic Steering sends a CONTROL message through a REST call to E2 SIM. This message requests to hand-off the corresponding UE, and an example of its payload is as follows:
+Since RC xApp is not mandatory for the Traffic Steering use case, TS xApp sends CONTROL messages using either REST or gRPC calls.
+The CONTROL endpoint is set up in the xApp descriptor file called "config-file.json". Please, check out the "schema.json" file for configuration examples.
+
+The following is an example of a REST message that requests the handover of a given UE:
 
 .. code-block::
 
@@ -120,4 +119,30 @@ If predicted throughput is higher in a neighbor cell, Traffic Steering sends a C
         "ttl": 10
     }
 
-Traffic Steering also logs the REST response, which shows whether or not the control operation has succeeded.
+Control messages might also be exchanged with E2 Simulators that implement REST-based interfaces.
+Traffic Steering then logs the REST response showing whether or not the control operation has succeeded.
+
+The gRPC interface is only required to exchange messages with the RC xApp.
+The following is an example of the gRPC message (*string representation*) which requests the RC xApp to handover a given UE:
+
+.. code-block::
+
+    e2NodeID: "000000000001001000110100"
+    plmnID: "02F829"
+    ranName: "enb_208_092_001235"
+        RICE2APHeaderData {
+        RanFuncId: 300
+        RICRequestorID: 1001
+    }
+    RICControlHeaderData {
+        ControlStyle: 3
+        ControlActionId: 1
+        UEID: "Train passenger 2"
+    }
+    RICControlMessageData {
+        TargetCellID: "mnop"
+    }
+
+TS xApp also requires to fetch additional RAN information from the E2 Manager to communicate with RC xApp.
+By default, TS xApp requests information to the default endpoint of E2 Manager in the Kubernetes cluster.
+Still, the default E2 Manager endpoint from TS can be changed using the env variable "SERVICE_E2MGR_HTTP_BASE_URL".

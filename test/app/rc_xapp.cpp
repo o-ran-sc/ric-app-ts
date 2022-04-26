@@ -41,7 +41,9 @@ using namespace std;
 class ControlServiceImpl : public api::MsgComm::Service {
     ::grpc::Status SendRICControlReqServiceGrpc(::grpc::ServerContext* context, const ::api::RicControlGrpcReq* request,
                                                 ::api::RicControlGrpcRsp* response) override {
-        cout << "[RC] Received a new gRPC message\n";
+
+        cout << "[RC] gRPC message received\n==============================\n"
+                << request->DebugString() << "==============================\n";
 
         /*
             TODO check if this is related to RICControlAckEnum

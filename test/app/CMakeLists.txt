@@ -55,7 +55,7 @@ add_executable(
 )
 target_link_libraries(
   rc_xapp
-  rc-api
+  rc_objects
   grpc++
   ${Protobuf_LIBRARY}
 )

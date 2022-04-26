@@ -41,7 +41,7 @@ WORKDIR /playpen
 
 # versions we snarf from package cloud
 ARG RMR_VER=4.8.1
-# ARG SDL_VER=1.0.4
+# ARG SDL_VER=1.4.0
 ARG XFCPP_VER=2.3.6
 
 # package cloud urls for wget
@@ -59,10 +59,14 @@ RUN wget -nv --content-disposition ${PC_REL_URL}/ricxfcpp-dev_${XFCPP_VER}_amd64
 	dpkg -i ricxfcpp-dev_${XFCPP_VER}_amd64.deb ricxfcpp_${XFCPP_VER}_amd64.deb
 
 # # snarf up SDL dependencies, then pull SDL package and install
-# RUN apt-get update
-# RUN apt-get install -y libboost-filesystem1.65.1 libboost-system1.65.1 libhiredis0.13
-# RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
-# 	wget -nv --content-disposition ${PC_STG_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
+# RUN apt-get update && apt-get install -y \
+# 	libboost-filesystem1.67.0 \
+# 	libboost-system1.67.0 \
+# 	libhiredis-dev \
+# 	libhiredis0.14 \
+# 	&& apt-get clean
+# RUN wget -nv --content-disposition ${PC_REL_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
+# 	wget -nv --content-disposition ${PC_REL_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
 # 	dpkg -i sdl-dev_${SDL_VER}-1_amd64.deb sdl_${SDL_VER}-1_amd64.deb
 
 RUN git clone https://github.com/Tencent/rapidjson && \
@@ -71,7 +75,7 @@ RUN git clone https://github.com/Tencent/rapidjson && \
    cd build && \
    cmake -DCMAKE_INSTALL_PREFIX=/usr/local .. && \
    make install && \
-   cd ${STAGE_DIR} && \
+   cd ../../ && \
    rm -rf rapidjson
 
 # install curl and gRPC dependencies
@@ -110,10 +114,14 @@ FROM ubuntu:20.04
 
 # # sdl doesn't install into /usr/local like everybody else, and we don't want to
 # # hunt for it or copy all of /usr, so we must pull and reinstall it.
-# RUN apt-get update
-# RUN apt-get install -y libboost-filesystem1.65.1 libboost-system1.65.1 libhiredis0.13 wget
-# RUN wget -nv --content-disposition ${PC_STG_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
-# 	wget -nv --content-disposition ${PC_STG_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
+# RUN apt-get update && apt-get install -y \
+# 	libboost-filesystem1.67.0 \
+# 	libboost-system1.67.0 \
+# 	libhiredis-dev \
+# 	libhiredis0.14 \
+# 	&& apt-get clean
+# RUN wget -nv --content-disposition ${PC_REL_URL}/sdl_${SDL_VER}-1_amd64.deb/download.deb && \
+# 	wget -nv --content-disposition ${PC_REL_URL}/sdl-dev_${SDL_VER}-1_amd64.deb/download.deb &&\
 # 	dpkg -i sdl-dev_${SDL_VER}-1_amd64.deb sdl_${SDL_VER}-1_amd64.deb
 
 # RUN rm -fr /var/lib/apt/lists

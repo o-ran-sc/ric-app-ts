@@ -1,7 +1,8 @@
-# vim: ts=4 sw=4 noet:
-
+# vim: sw=4 ts=4 noet:
+#
 #==================================================================================
-#	Copyright (c) 2020 AT&T Intellectual Property.
+#   Copyright (c) 2022 Nokia
+#   Copyright (c) 2022 AT&T Intellectual Property.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -15,18 +16,24 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #==================================================================================
+#
 
-# simple makefile to build the examples. This assumes that the xapp framework
-# library has been installed or the LD_LIBRARY_PATH and C_INCLUDE_PATH environent
-# variables are set to reference the needed files.
 
-%.o:: %.cpp %.hpp
-	g++ -g ${prereq%% *} -c 
+# For clarity: this generates object, not a lib as the CM command implies.
+#
+add_library( utils_objects OBJECT
+	restclient.cpp
+)
 
-% :: %.cpp
-	g++ $< -g -o $@  -lricxfcpp -lrmr_si -lpthread -lm -lsdl
+target_include_directories (utils_objects PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>
+)
 
-all:: ts_xapp
-
-install::
-	cp ts_xapp /usr/local/bin/
+# header files should go into .../include/ts_xapp/
+if( DEV_PKG )
+	install( FILES
+		restclient.hpp
+		DESTINATION ${install_inc}
+	)
+endif()

@@ -18,7 +18,17 @@
 find_package(Protobuf REQUIRED)
 
 add_executable( ts_xapp ts_xapp.cpp )
-target_link_libraries( ts_xapp ricxfcpp;rmr_si;pthread;curl;rc-api;grpc++;${Protobuf_LIBRARY} )
+target_include_directories( ts_xapp PUBLIC ${srcd}/src ${srcd}/ext )
+target_link_libraries( ts_xapp
+                        ricxfcpp
+                        rmr_si
+                        pthread
+                        rc_objects
+                        grpc++
+                        ${Protobuf_LIBRARY}
+                        utils_objects
+                        curl
+)
 
 install(
     TARGETS ts_xapp

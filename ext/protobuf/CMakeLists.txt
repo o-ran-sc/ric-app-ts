@@ -18,5 +18,21 @@
 # 	Date:     07 Dec 2021
 # 	Author:   Alexandre Huff
 
-add_library( rc-api STATIC api.pb.h api.pb.cc api.grpc.pb.h api.grpc.pb.cc )
-target_include_directories( rc-api PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+# For clarity: this generates object, not a lib as the CM command implies.
+#
+add_library( rc_objects OBJECT
+	api.pb.cc api.grpc.pb.cc
+)
+
+target_include_directories (rc_objects PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>
+)
+
+# header files should go into .../include/ts_xapp/
+if( DEV_PKG )
+	install( FILES
+		api.pb.h api.grpc.pb.h
+		DESTINATION ${install_inc}
+	)
+endif()

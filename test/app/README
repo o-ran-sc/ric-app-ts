@@ -10,15 +10,19 @@ ad_xapp.cpp
     RMR port 4570.
 
 qp_xapp.cpp
-    Simulates both, the QoE Prediction (QP), and the QP Driver xApps.
+    Simulates the QoE Prediction (QP) xApp.
     Basically, this program receives Prediction Requests from TS xApp,
     computes random throughput values (predictions) for neighbor cells,
     and sends that Throughput Prediction to the TS xApp. All steps are
     logged in the console. Uses RMR port 4580.
 
 echo-server.py
-    Implements a dummy echo server just for testing REST calls from
-    TS xApp.
+    Implements a echo server for testing REST calls from TS xApp.
+
+rc_xapp.cpp
+    Simulates the RC xApp. It receives CONTROL messages from TS xApp,
+    and outputs the string representation of the message in the console.
+    Replies TS with an ACK message. Uses gRPC port 50051.
 
 routes.rt
     Contains a few RMR routing policies to allow AD, QP, and TS xApps
