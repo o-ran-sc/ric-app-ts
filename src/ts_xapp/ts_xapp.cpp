@@ -92,7 +92,7 @@ using Keys = std::set<Key>;
 std::unique_ptr<Xapp> xfw;
 std::unique_ptr<api::MsgComm::Stub> rc_stub;
 
-int rsrp_threshold = 0;
+int downlink_threshold = 0;  // A1 policy type 20008 (in percentage)
 
 // scoped enum to identify which API is used to send control messages
 enum class TsControlApi { REST, gRPC };
@@ -115,6 +115,10 @@ unordered_map<string, shared_ptr<nodeb_t>> cell_map; // maps each cell to its no
 }; */
 
 struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
+  /*
+    Assuming we receive the following payload from A1 Mediator
+    {"operation": "CREATE", "policy_type_id": 20008, "policy_instance_id": "tsapolicy145", "payload": {"threshold": 5}}
+  */
   unordered_map<string, string> cell_pred;
   std::string ue_id;
   bool ue_id_found = false;
@@ -426,13 +430,9 @@ struct NodebHandler : public BaseReaderHandler<UTF8<>, NodebHandler> {
 } */
 
 void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_component payload,  void* data ) {
-
-  int response_to = 0;	 // max timeout wating for a response
-  int rmtype;		// received message type
-
   string arg ((const char*)payload.get(), len); // RMR payload might not have a nil terminanted char
 
-  cout << "[INFO] Policy Callback got a message, type=" << mtype << ", length="<< len << "\n";
+  cout << "[INFO] Policy Callback got a message, type=" << mtype << ", length=" << len << "\n";
   cout << "[INFO] Payload is " << arg << endl;
 
   PolicyHandler handler;
@@ -442,8 +442,8 @@ void policy_callback( Message& mbuf, int mtype, int subid, int len, Msg_componen
 
   //Set the threshold value
   if (handler.found_threshold) {
-    cout << "[INFO] Setting RSRP Threshold to A1-P value: " << handler.threshold << endl;
-    rsrp_threshold = handler.threshold;
+    cout << "[INFO] Setting Threshold for A1-P value: " << handler.threshold << "%\n";
+    downlink_threshold = handler.threshold;
   }
 
 }
@@ -614,7 +614,12 @@ void prediction_callback( Message& mbuf, int mtype, int subid, int len, Msg_comp
 
   }
 
-  if ( highest_throughput > serving_cell_throughput ) {
+  float thresh = 0;
+  if( downlink_threshold > 0 ) {  // we also take into account the threshold in A1 policy type 20008
+    thresh = serving_cell_throughput * (downlink_threshold / 100.0);
+  }
+
+  if ( highest_throughput > ( serving_cell_throughput + thresh ) ) {
 
     // sending a control request message
     if ( ts_control_api == TsControlApi::REST ) {

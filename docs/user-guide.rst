@@ -63,8 +63,6 @@ The following is an example message body:
         }
     ]
 
-.. ``[{"du-id": 1010, "ue-id": "Train passenger 2", "measTimeStampRf": 1620835470108, "Degradation": "RSRP RSSINR"}]``
-
 Sending QoE Prediction Request
 ==============================
 
@@ -73,8 +71,6 @@ Each Anomaly Detection message received from AD xApp, results in a QoE Predictio
 The RMR Message Type is 30000.
 The following is an example message body:
 
-.. {"UEPredictionSet" : ["12345"]}
-
 .. code-block::
 
     { "UEPredictionSet": ["Train passenger 2"] }
@@ -82,9 +78,7 @@ The following is an example message body:
 Receiving QoE Prediction
 ========================
 
-Traffic Steering xApp defines a callback for QoE Prediction received from QP xApp.  The RMR message type is 30002.  The following is an example message body:
-
-.. {"12345" : { "310-680-200-555001" : [ 2000000 , 1200000 ] , "310-680-200-555002" : [ 800000 , 400000 ] , "310-680-200-555003" : [ 800000 , 400000 ]  } }
+Traffic Steering xApp defines a callback for QoE Prediction received from QP xApp. The RMR message type is 30002. The following is an example message body:
 
 .. code-block::
 
@@ -96,11 +90,12 @@ Traffic Steering xApp defines a callback for QoE Prediction received from QP xAp
         }
     }
 
-This message provides predictions for UE ID "Train passenger 2".  For its service cell and neighbor cells, it lists an array containing two elements: DL Throughput and UL Throughput predictions.
+This message provides throughput predictions of three cells for the UE ID "Train passenger 2". For each service cell, it lists an array containing two elements: DL Throughput and UL Throughput predictions.
 
-Traffic Steering xApp checks for the Service Cell ID for UE ID, and determines whether the predicted throughput is higher in a neighbor cell.
+Traffic Steering xApp checks for the Service Cell ID for UE ID, and determines if the predicted throughput is higher in a neighbor cell.
 The first cell in this prediction message is assumed to be the serving cell.
 
+If predicted throughput is higher than the A1 policy "*threshold*" in a given neighbor cell, Traffic Steering sends the CONTROL message to a given endpoint.
 Since RC xApp is not mandatory for the Traffic Steering use case, TS xApp sends CONTROL messages using either REST or gRPC calls.
 The CONTROL endpoint is set up in the xApp descriptor file called "config-file.json". Please, check out the "schema.json" file for configuration examples.
 
@@ -144,5 +139,5 @@ The following is an example of the gRPC message (*string representation*) which 
     }
 
 TS xApp also requires to fetch additional RAN information from the E2 Manager to communicate with RC xApp.
-By default, TS xApp requests information to the default endpoint of E2 Manager in the Kubernetes cluster.
-Still, the default E2 Manager endpoint from TS can be changed using the env variable "SERVICE_E2MGR_HTTP_BASE_URL".
+By default, TS xApp requests information to the default endpoint of E2 Manager in the Kubernetes cluster. Currently, this is done once on startup.
+Finally, the default E2 Manager endpoint from TS can be changed using the env variable "SERVICE_E2MGR_HTTP_BASE_URL".
