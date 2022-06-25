@@ -34,13 +34,13 @@
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 
-#include "../../ext/protobuf/api.grpc.pb.h"
+#include "../../ext/protobuf/rc.grpc.pb.h"
 
 using namespace std;
 
-class ControlServiceImpl : public api::MsgComm::Service {
-    ::grpc::Status SendRICControlReqServiceGrpc(::grpc::ServerContext* context, const ::api::RicControlGrpcReq* request,
-                                                ::api::RicControlGrpcRsp* response) override {
+class ControlServiceImpl : public rc::MsgComm::Service {
+    ::grpc::Status SendRICControlReqServiceGrpc(::grpc::ServerContext* context, const ::rc::RicControlGrpcReq* request,
+                                                ::rc::RicControlGrpcRsp* response) override {
 
         cout << "[RC] gRPC message received\n==============================\n"
                 << request->DebugString() << "==============================\n";

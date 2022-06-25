@@ -72,7 +72,7 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include "protobuf/api.grpc.pb.h"
+#include "protobuf/rc.grpc.pb.h"
 
 #include "utils/restclient.hpp"
 
@@ -90,7 +90,7 @@ using Keys = std::set<Key>;
 
 // ----------------------------------------------------------
 std::unique_ptr<Xapp> xfw;
-std::unique_ptr<api::MsgComm::Stub> rc_stub;
+std::unique_ptr<rc::MsgComm::Stub> rc_stub;
 
 int downlink_threshold = 0;  // A1 policy type 20008 (in percentage)
 
@@ -524,20 +524,20 @@ void send_rest_control_request( string ue_id, string serving_cell_id, string tar
 void send_grpc_control_request( string ue_id, string target_cell_id ) {
   grpc::ClientContext context;
 
-  api::RicControlGrpcRsp response;
-  shared_ptr<api::RicControlGrpcReq> request = make_shared<api::RicControlGrpcReq>();
+  rc::RicControlGrpcRsp response;
+  shared_ptr<rc::RicControlGrpcReq> request = make_shared<rc::RicControlGrpcReq>();
 
-  api::RICE2APHeader *apHeader = request->mutable_rice2apheaderdata();
+  rc::RICE2APHeader *apHeader = request->mutable_rice2apheaderdata();
   apHeader->set_ranfuncid( 300 );
   apHeader->set_ricrequestorid( 1001 );
 
-  api::RICControlHeader *ctrlHeader = request->mutable_riccontrolheaderdata();
+  rc::RICControlHeader *ctrlHeader = request->mutable_riccontrolheaderdata();
   ctrlHeader->set_controlstyle( 3 );
   ctrlHeader->set_controlactionid( 1 );
   ctrlHeader->set_ueid( ue_id );
 
-  api::RICControlMessage *ctrlMsg = request->mutable_riccontrolmessagedata();
-  ctrlMsg->set_riccontrolcelltypeval( api::RIC_CONTROL_CELL_UNKWON );
+  rc::RICControlMessage *ctrlMsg = request->mutable_riccontrolmessagedata();
+  ctrlMsg->set_riccontrolcelltypeval( rc::RIC_CONTROL_CELL_UNKWON );
   ctrlMsg->set_targetcellid( target_cell_id );
 
   auto data = cell_map.find( target_cell_id );
@@ -550,7 +550,7 @@ void send_grpc_control_request( string ue_id, string target_cell_id ) {
     request->set_plmnid( "unknown_plmnid" );
     request->set_ranname( "unknown_ranname" );
   }
-  request->set_riccontrolackreqval( api::RIC_CONTROL_ACK_UNKWON );  // not yet used in api.proto
+  request->set_riccontrolackreqval( rc::RIC_CONTROL_ACK_UNKWON );  // not yet used in api.proto
 
   grpc::Status status = rc_stub->SendRICControlReqServiceGrpc( &context, *request, &response );
 
@@ -785,7 +785,7 @@ extern int main( int argc, char** argv ) {
     }
 
     channel = grpc::CreateChannel(ts_control_ep, grpc::InsecureChannelCredentials());
-    rc_stub = api::MsgComm::NewStub(channel, grpc::StubOptions());
+    rc_stub = rc::MsgComm::NewStub(channel, grpc::StubOptions());
   }
 
   fprintf( stderr, "[TS xApp] listening on port %s\n", port );

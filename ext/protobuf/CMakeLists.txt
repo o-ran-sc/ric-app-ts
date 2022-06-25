@@ -21,7 +21,7 @@
 # For clarity: this generates object, not a lib as the CM command implies.
 #
 add_library( rc_objects OBJECT
-	api.pb.cc api.grpc.pb.cc
+	rc.pb.cc rc.grpc.pb.cc
 )
 
 target_include_directories (rc_objects PUBLIC
@@ -32,7 +32,7 @@ target_include_directories (rc_objects PUBLIC
 # header files should go into .../include/ts_xapp/
 if( DEV_PKG )
 	install( FILES
-		api.pb.h api.grpc.pb.h
+		rc.pb.h rc.grpc.pb.h
 		DESTINATION ${install_inc}
 	)
 endif()
