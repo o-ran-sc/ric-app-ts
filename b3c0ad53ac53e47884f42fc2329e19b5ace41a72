@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f197da12_e76d5fce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001476
+      },
+      "writtenOn": "2022-06-25T11:49:46Z",
+      "side": 1,
+      "message": "Hi Alexandre, In this commit I fixed the proto file ,in order to match it with the proto file of rc xapp(e-release).\n\nKindly review it.\nI have tested it with RC xapp(e-release version) and found it to be working perfectly fine. ",
+      "revId": "b3c0ad53ac53e47884f42fc2329e19b5ace41a72",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
