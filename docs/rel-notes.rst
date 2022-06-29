@@ -9,6 +9,10 @@
 Traffic Steering xAPP
 =====================
 
+2022 Jun 29 Version 1.2.4
+--------------------------
+        Fix Proto file
+
 2022 May 10 Version 1.2.3
 --------------------------
         Update TS to enforce A1 policy on throughput predictions
