@@ -32,6 +32,7 @@
 
 #include <curl/curl.h>
 #include <string>
+#include <stdexcept>
 
 namespace restclient {
 
@@ -43,12 +44,11 @@ typedef struct resp {
 class RestClient {
     private:
         std::string baseUrl;
-        response_t response;
         CURL *curl = NULL;
         struct curl_slist *headers = NULL;
         char errbuf[CURL_ERROR_SIZE];
 
-        bool init( );
+        void init( );
 
     public:
         RestClient( std::string baseUrl );
@@ -56,6 +56,12 @@ class RestClient {
         std::string getBaseUrl();
         response_t do_get( std::string path );
         response_t do_post( std::string path, std::string json );
+};
+
+class RestClientException : public std::runtime_error {
+    public:
+        RestClientException( const std::string &error )
+            : std::runtime_error{ error.c_str() } { }
 };
 
 } // namespace

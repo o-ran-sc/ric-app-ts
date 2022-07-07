@@ -30,6 +30,7 @@
 #include <mutex>
 #include <string.h>
 #include <memory>
+#include <sstream>
 
 namespace restclient {
 
@@ -51,9 +52,7 @@ static size_t http_response_callback( const char *in, size_t size, size_t num, s
 RestClient::RestClient( std::string baseUrl ) {
     this->baseUrl = baseUrl;
 
-    if( ! init() ) {
-         fprintf( stderr, "unable to initialize RestClient\n" );
-    }
+    init();
 }
 
 RestClient::~RestClient( ) {
@@ -65,47 +64,60 @@ std::string RestClient::getBaseUrl( ) {
     return baseUrl;
 }
 
-bool RestClient::init( ) {
+void RestClient::init( ) {
     static std::mutex curl_mutex;
 
     {   // scoped mutex to make curl_global_init thread-safe
         const std::lock_guard<std::mutex> lock( curl_mutex );
-        curl_global_init( CURL_GLOBAL_DEFAULT );
+        CURLcode code = curl_global_init( CURL_GLOBAL_DEFAULT );
+        if( code != 0 ) {
+            std::stringstream ss;
+            ss << "curl_global_init returned error code " << code << ", unable to proceed";
+            std::string s = std::to_string(code);
+            throw RestClientException( ss.str() );
+        }
     }
 
-    curl = curl_easy_init();
-    if( curl == NULL ) {
-        return false;
+    try {
+        curl = curl_easy_init();
+        if( curl == NULL ) {
+            throw RestClientException( "CURL did not return a handler, unable to proceed" );
+        }
+
+        // curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
+        if( curl_easy_setopt( curl, CURLOPT_TIMEOUT, 5 ) != CURLE_OK ) {
+            throw RestClientException( "unable to set CURLOPT_TIMEOUT" );
+        }
+
+        /* provide a buffer to store errors in */
+        if( curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errbuf) != CURLE_OK ) {
+            throw RestClientException( "unable to set CURLOPT_ERRORBUFFER" );
+        }
+        errbuf[0] = 0;
+
+        if( curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, http_response_callback ) != CURLE_OK ) {
+            throw RestClientException( "unable to set CURLOPT_WRITEFUNCTION" );
+        }
+
+        headers = curl_slist_append( headers, "Accept: application/json" );
+        headers = curl_slist_append( headers, "Content-Type: application/json" );
+        if( curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers ) != CURLE_OK ) {
+            throw RestClientException( "unable to set CURLOPT_HTTPHEADER" );
+        }
+
+    } catch( const RestClientException &e ) {   // avoid memory leakage
+        if( headers != NULL ) {
+            curl_slist_free_all( headers );
+        }
+        if( curl != NULL ) {
+            curl_easy_cleanup( curl );
+        }
+
+        std::stringstream ss;
+        ss << "Failed to initialize RestClient: " << e.what();
+        throw RestClientException( ss.str() );
     }
 
-    // curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
-    curl_easy_setopt( curl, CURLOPT_TIMEOUT, 5 );
-
-    /* provide a buffer to store errors in */
-    if( curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errbuf) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_ERRORBUFFER\n" );
-        return false;
-    }
-    errbuf[0] = 0;
-
-    if( curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, http_response_callback ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_WRITEFUNCTION\n" );
-        return false;
-    }
-
-    if( curl_easy_setopt( curl, CURLOPT_WRITEDATA, &response.body ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_WRITEDATA\n" );
-        return false;
-    }
-
-    headers = curl_slist_append( headers, "Accept: application/json" );
-    headers = curl_slist_append( headers, "Content-Type: application/json" );
-    if( curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_HTTPHEADER\n" );
-        return false;
-    }
-
-    return true;
 }
 
 /*
@@ -113,32 +125,36 @@ bool RestClient::init( ) {
     Returns the HTTP status code and the correspoding message body.
 */
 response_t RestClient::do_get( std::string path ) {
-    response = { 0, "" };
+    response_t response = { 0, "" };
 
     const std::string endpoint = baseUrl + path;
 
+    if( curl_easy_setopt( curl, CURLOPT_WRITEDATA, &response.body ) != CURLE_OK ) {
+        throw RestClientException( "unable to set CURLOPT_WRITEDATA" );
+    }
+
     if( curl_easy_setopt( curl, CURLOPT_URL, endpoint.c_str() ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_URL\n" );
-        return response;
+        throw RestClientException( "unable to set CURLOPT_URL" );
     }
     if( curl_easy_setopt( curl, CURLOPT_HTTPGET, 1L ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_HTTPGET\n" );
-        return response;
+        throw RestClientException( "unable to set CURLOPT_HTTPGET" );
     }
 
     CURLcode res = curl_easy_perform( curl );
     if( res == CURLE_OK ) {
         if( curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &response.status_code ) != CURLE_OK ) {
-            fprintf( stderr, "unable to get CURLINFO_RESPONSE_CODE\n" );
+            throw RestClientException( std::string("unable to get CURLINFO_RESPONSE_CODE. ") + errbuf );
         }
     } else {
         size_t len = strlen( errbuf );
-        fprintf( stderr, "unable to complete the request url=%s ", endpoint.c_str() );
+        std::stringstream ss;
+        ss << "unable to complete the request at " << endpoint.c_str();
         if(len)
-            fprintf( stderr, "error=%s%s", errbuf,
-                    ( ( errbuf[len - 1] != '\n' ) ? "\n" : "") );
+            ss << ". " << errbuf;
         else
-            fprintf( stderr, "error=%s\n", curl_easy_strerror( res ) );
+            ss << ". " << curl_easy_strerror( res );
+
+        throw RestClientException( ss.str() );
     }
 
     return response;
@@ -149,36 +165,39 @@ response_t RestClient::do_get( std::string path ) {
     Returns the HTTP status code and the correspoding message body.
 */
 response_t RestClient::do_post( std::string path, std::string json ) {
-    response = { 0, "" };
+    response_t response = { 0, "" };
 
     const std::string endpoint = baseUrl + path;
 
+    if( curl_easy_setopt( curl, CURLOPT_WRITEDATA, &response.body ) != CURLE_OK ) {
+        throw RestClientException( "unable to set CURLOPT_WRITEDATA" );
+    }
+
     if( curl_easy_setopt( curl, CURLOPT_URL, endpoint.c_str() ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_URL\n" );
-        return response;
+        throw RestClientException( "unable to set CURLOPT_URL" );
     }
     if( curl_easy_setopt( curl, CURLOPT_POST, 1L ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_POST\n" );
-        return response;
+        throw RestClientException( "unable to set CURLOPT_POST" );
     }
     if( curl_easy_setopt( curl, CURLOPT_POSTFIELDS, json.c_str() ) != CURLE_OK ) {
-        fprintf( stderr, "unable to set CURLOPT_POSTFIELDS\n" );
-        return response;
+        throw RestClientException( "unable to set CURLOPT_POSTFIELDS" );
     }
 
     CURLcode res = curl_easy_perform( curl );
     if( res == CURLE_OK ) {
         if( curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &response.status_code ) != CURLE_OK ) {
-            fprintf( stderr, "unable to get CURLINFO_RESPONSE_CODE\n" );
+            throw RestClientException( std::string("unable to get CURLINFO_RESPONSE_CODE. ") + errbuf );
         }
     } else {
         size_t len = strlen( errbuf );
-        fprintf( stderr, "unable to complete the request url=%s ", endpoint.c_str() );
+        std::stringstream ss;
+        ss << "unable to complete the request at " << endpoint.c_str();
         if(len)
-            fprintf( stderr, "error=%s%s", errbuf,
-                    ( (errbuf[len - 1] != '\n' ) ? "\n" : "") );
+            ss << ". " << errbuf;
         else
-            fprintf( stderr, "error=%s\n", curl_easy_strerror( res ) );
+            ss << ". " << curl_easy_strerror( res );
+
+        throw RestClientException( ss.str() );
     }
 
     return response;

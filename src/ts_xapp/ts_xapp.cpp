@@ -498,24 +498,30 @@ void send_rest_control_request( string ue_id, string serving_cell_id, string tar
   cout << "[INFO] Sending a HandOff CONTROL message to \"" << ts_control_ep << "\"\n";
   cout << "[INFO] HandOff request is " << msg << endl;
 
-  // sending request
-  restclient::RestClient client( ts_control_ep );
-  restclient::response_t resp = client.do_post( "", msg ); // we already have the full path in ts_control_ep
+  try {
+    // sending request
+    restclient::RestClient client( ts_control_ep );
+    restclient::response_t resp = client.do_post( "", msg ); // we already have the full path in ts_control_ep
 
-  if( resp.status_code == 200 ) {
-      // ============== DO SOMETHING USEFUL HERE ===============
-      // Currently, we only print out the HandOff reply
-      rapidjson::Document document;
-      document.Parse( resp.body.c_str() );
-      rapidjson::StringBuffer s;
-	    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
-      document.Accept( writer );
-      cout << "[INFO] HandOff reply is " << s.GetString() << endl;
+    if( resp.status_code == 200 ) {
+        // ============== DO SOMETHING USEFUL HERE ===============
+        // Currently, we only print out the HandOff reply
+        rapidjson::Document document;
+        document.Parse( resp.body.c_str() );
+        rapidjson::StringBuffer s;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+        document.Accept( writer );
+        cout << "[INFO] HandOff reply is " << s.GetString() << endl;
 
-  } else {
-      cout << "[ERROR] Unexpected HTTP code " << resp.status_code << " from " << \
-              client.getBaseUrl() << \
-              "\n[ERROR] HTTP payload is " << resp.body.c_str() << endl;
+    } else {
+        cout << "[ERROR] Unexpected HTTP code " << resp.status_code << " from " << \
+                client.getBaseUrl() << \
+                "\n[ERROR] HTTP payload is " << resp.body.c_str() << endl;
+    }
+
+  } catch( const restclient::RestClientException &e ) {
+    cout << "[ERROR] " << e.what() << endl;
+
   }
 
 }
@@ -551,6 +557,8 @@ void send_grpc_control_request( string ue_id, string target_cell_id ) {
     request->set_ranname( "unknown_ranname" );
   }
   request->set_riccontrolackreqval( rc::RIC_CONTROL_ACK_UNKWON );  // not yet used in api.proto
+
+  cout << "[INFO] Sending gRPC control request to " << ts_control_ep << "\n" << request->DebugString();
 
   grpc::Status status = rc_stub->SendRICControlReqServiceGrpc( &context, *request, &response );
 
@@ -731,33 +739,39 @@ bool build_cell_mapping() {
     base_url = string( data );
   }
 
-  restclient::RestClient client( base_url );
+  try {
+    restclient::RestClient client( base_url );
 
-  vector<string> nb_list = get_nodeb_list( client );
+    vector<string> nb_list = get_nodeb_list( client );
 
-  for( string nb : nb_list ) {
-    string full_path = string("/v1/nodeb/") + nb;
-    restclient::response_t response = client.do_get( full_path );
-    if( response.status_code != 200 ) {
-      if( response.body.empty() ) {
-        cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
-                client.getBaseUrl() + full_path << endl;
-      } else {
-        cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
-              client.getBaseUrl() + full_path << ". HTTP payload is " << response.body.c_str() << endl;
+    for( string nb : nb_list ) {
+      string full_path = string("/v1/nodeb/") + nb;
+      restclient::response_t response = client.do_get( full_path );
+      if( response.status_code != 200 ) {
+        if( response.body.empty() ) {
+          cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
+                  client.getBaseUrl() + full_path << endl;
+        } else {
+          cout << "[ERROR] Unexpected HTTP code " << response.status_code << " from " << \
+                client.getBaseUrl() + full_path << ". HTTP payload is " << response.body.c_str() << endl;
+        }
+        return false;
       }
-      return false;
+
+      try {
+        NodebHandler handler;
+        Reader reader;
+        StringStream ss( response.body.c_str() );
+        reader.Parse( ss, handler );
+      } catch (...) {
+        cout << "[ERROR] Got an exception on parsing nodeb (stringstream read parse)\n";
+        return false;
+      }
     }
 
-    try {
-      NodebHandler handler;
-      Reader reader;
-      StringStream ss( response.body.c_str() );
-      reader.Parse( ss, handler );
-    } catch (...) {
-      cout << "[ERROR] Got an exception on parsing nodeb (stringstream read parse)\n";
-      return false;
-    }
+  } catch( const restclient::RestClientException &e ) {
+    cout << "[ERROR] " << e.what() << endl;
+    return false;
   }
 
   return true;
@@ -788,7 +802,7 @@ extern int main( int argc, char** argv ) {
     rc_stub = rc::MsgComm::NewStub(channel, grpc::StubOptions());
   }
 
-  fprintf( stderr, "[TS xApp] listening on port %s\n", port );
+  fprintf( stderr, "[INFO] listening on port %s\n", port );
   xfw = std::unique_ptr<Xapp>( new Xapp( port, true ) );
 
   xfw->Add_msg_cb( A1_POLICY_REQ, policy_callback, NULL );          // msg type 20010
