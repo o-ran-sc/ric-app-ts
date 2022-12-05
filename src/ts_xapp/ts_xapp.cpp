@@ -42,13 +42,13 @@
 #include <thread>
 #include <iostream>
 #include <memory>
-
+#include <algorithm>
 #include <set>
 #include <map>
 #include <vector>
 #include <string>
 #include <unordered_map>
-
+#include<deque>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -59,6 +59,7 @@
 #include <rmr/RIC_message_types.h>
 #include <ricxfcpp/xapp.hpp>
 #include <ricxfcpp/config.hpp>
+#include<sstream>
 
 /*
   FIXME unfortunately this RMR flag has to be disabled
@@ -113,6 +114,29 @@ unordered_map<string, shared_ptr<nodeb_t>> cell_map; // maps each cell to its no
   string serving_cell;
   int serving_cell_rsrp;
 }; */
+
+
+//https://stackoverflow.com/a/34571089/15098882
+
+static std::string base64_decode(const std::string &in) {
+
+	std::string out;
+
+	std::vector<int> T(256, -1);
+	for (int i = 0; i < 64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
+
+	int val = 0, valb = -8;
+	for (unsigned char c : in) {
+		if (T[c] == -1) break;
+		val = (val << 6) + T[c];
+		valb += 6;
+		if (valb >= 0) {
+			out.push_back(char((val >> valb) & 0xFF));
+			valb -= 8;
+		}
+	}
+	return out;
+}
 
 struct PolicyHandler : public BaseReaderHandler<UTF8<>, PolicyHandler> {
   /*
@@ -277,29 +301,82 @@ struct NodebListHandler : public BaseReaderHandler<UTF8<>, NodebListHandler> {
 };
 
 struct NodebHandler : public BaseReaderHandler<UTF8<>, NodebHandler> {
-  string curr_key = "";
-  shared_ptr<nodeb_t> nodeb = make_shared<nodeb_t>();
+	string curr_key = "";
+	shared_ptr<nodeb_t> nodeb = make_shared<nodeb_t>();
+	std::string meid;
+	std::vector<string> cells;
 
-  bool Key(const Ch* str, SizeType length, bool copy) {
-    curr_key = str;
-    return true;
-  }
+	bool Key(const Ch* str, SizeType length, bool copy) {
+		curr_key = str;
+		return true;
+	}
 
-  bool String(const Ch* str, SizeType length, bool copy) {
-    if( curr_key.compare( "ranName" ) == 0 ) {
-      nodeb->ran_name = str;
-    } else if( curr_key.compare( "plmnId" ) == 0 ) {
-      nodeb->global_nb_id.plmn_id = str;
-    } else if( curr_key.compare( "nbId" ) == 0 ) {
-      nodeb->global_nb_id.nb_id = str;
-    } else if( curr_key.compare( "cellId" ) == 0 ) {
-      cell_map[str] = nodeb;
-    }
-    return true;
-  }
+	bool String(const Ch* str, SizeType length, bool copy) {
+
+		if (curr_key.compare("ranName") == 0) {
+			//std::cout << str << "\n";
+			nodeb->ran_name = str;
+			meid= str;
+			//std::cout << "\n meid = " << meid;
+
+		}
+		else if (curr_key.compare("plmnId") == 0) {
+			//std::cout << str << "\n";
+			nodeb->global_nb_id.plmn_id = str;
+		}
+		else if (curr_key.compare("nbId") == 0) {
+			//std::cout <<str<< "\n";
+			nodeb->global_nb_id.nb_id = str;
+		}
+		else if (curr_key.compare("e2nodeComponentRequestPart") == 0) {
+			//std::cout << str<<"\n";
+			auto message = base64_decode(str);
+			//std::cout << message<<"\n";
+			int len = meid.length();
+			//std::cout << "\n meid = " << meid;
+			int counter = 0;
+				for (int i = 0; i <len; i++ ){
+					if (meid[i] == '_') {
+						counter++;
+					}
+					if( counter == 3) {
+						counter = i + 1;
+						break;
+					}
+				}
+				std::string last_matching_bits = meid.substr(counter, meid.length());
+				len = last_matching_bits.size();
+				char b;
+
+				for (int i = 0; i < len; i++) {
+					b = last_matching_bits[i];
+					b = toupper(b);
+					// b = to lower(b); //alternately
+					last_matching_bits[i] = b;
+				}
+				len = message.length();
+				//std::cout << "\nlast_matching_bits = " << last_matching_bits;
+				int matching_len = last_matching_bits.length();;
+
+					for (int i = 0; i <= len - matching_len; i++ ){
+						//std::cout << "\n" << message.substr(i, matching_len);
+
+						if (message.substr(i,matching_len)== last_matching_bits){
+							//std::cout << "\nmatched!\n";
+							cells.push_back(message.substr(i,10));//cell id is 36 bit long , last  4 bit unused
+
+						}
+					}
+					len = cells.size();
+					for (int i = 0; i < len; i++) {
+						cell_map[cells[i]] = nodeb;
+					}
+
+		}
+		return true;
+	}
 
 };
-
 
 /* struct UEDataHandler : public BaseReaderHandler<UTF8<>, UEDataHandler> {
   unordered_map<string, string> cell_pred;
@@ -534,32 +611,48 @@ void send_grpc_control_request( string ue_id, string target_cell_id ) {
   shared_ptr<rc::RicControlGrpcReq> request = make_shared<rc::RicControlGrpcReq>();
 
   rc::RICE2APHeader *apHeader = request->mutable_rice2apheaderdata();
-  apHeader->set_ranfuncid( 300 );
-  apHeader->set_ricrequestorid( 1001 );
+  apHeader->set_ranfuncid(3);
+  apHeader->set_ricrequestorid( 1 );
 
   rc::RICControlHeader *ctrlHeader = request->mutable_riccontrolheaderdata();
   ctrlHeader->set_controlstyle( 3 );
   ctrlHeader->set_controlactionid( 1 );
-  ctrlHeader->set_ueid( ue_id );
+  rc::UeId *ueid =  ctrlHeader->mutable_ueid();
+  rc::gNBUEID* gnbue= ueid->mutable_gnbueid();
+  gnbue->set_amfuengapid(stoi(ue_id));
+  gnbue->add_gnbcuuef1apid(stoi(ue_id));
+  gnbue->add_gnbcucpuee1apid(stoi(ue_id));
+  rc::Guami* gumi=gnbue->mutable_guami();
+  //As of now hardcoded according to the value setted in VIAVI RSG TOOL
+  gumi->set_amfregionid("10100000");
+  gumi->set_amfsetid("0000000000");
+  gumi->set_amfpointer("000001");
+  
+  //ctrlHeader->set_ueid( ue_id );
 
   rc::RICControlMessage *ctrlMsg = request->mutable_riccontrolmessagedata();
-  ctrlMsg->set_riccontrolcelltypeval( rc::RIC_CONTROL_CELL_UNKWON );
-  ctrlMsg->set_targetcellid( target_cell_id );
+  ctrlMsg->set_riccontrolcelltypeval( rc::RICControlCellTypeEnum::RIC_CONTROL_CELL_UNKWON );
+  //ctrlMsg->set_riccontrolcelltypeval( api::RIC_CONTROL_CELL_UNKWON);
+    
+    ctrlMsg->set_targetcellid( target_cell_id);
 
-  auto data = cell_map.find( target_cell_id );
+  auto data = cell_map.find(target_cell_id);
   if( data != cell_map.end() ) {
     request->set_e2nodeid( data->second->global_nb_id.nb_id );
     request->set_plmnid( data->second->global_nb_id.plmn_id );
     request->set_ranname( data->second->ran_name );
+    gumi->set_plmnidentity(data->second->global_nb_id.plmn_id);
   } else {
+    cout << "[INFO] Cannot find RAN name corresponding to cell id = "<<target_cell_id<<endl;
+    return;
     request->set_e2nodeid( "unknown_e2nodeid" );
     request->set_plmnid( "unknown_plmnid" );
     request->set_ranname( "unknown_ranname" );
+    gumi->set_plmnidentity("unknown_plmnid");
   }
-  request->set_riccontrolackreqval( rc::RIC_CONTROL_ACK_UNKWON );  // not yet used in api.proto
-
-  cout << "[INFO] Sending gRPC control request to " << ts_control_ep << "\n" << request->DebugString();
-
+  request->set_riccontrolackreqval( rc::RICControlAckEnum::RIC_CONTROL_ACK_UNKWON );
+  //request->set_riccontrolackreqval( api::RIC_CONTROL_ACK_UNKWON);  // not yet used in api.proto
+ cout<<"\nin ts xapp grpc message content \n"<< request->DebugString()<<"\n"; 
   grpc::Status status = rc_stub->SendRICControlReqServiceGrpc( &context, *request, &response );
 
   if( status.ok() ) {

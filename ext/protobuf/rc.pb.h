@@ -39,7 +39,7 @@ namespace protobuf_rc_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[5];
+  static const ::google::protobuf::internal::ParseTable schema[8];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -47,6 +47,9 @@ struct TableStruct {
 void AddDescriptors();
 }  // namespace protobuf_rc_2eproto
 namespace rc {
+class Guami;
+class GuamiDefaultTypeInternal;
+extern GuamiDefaultTypeInternal _Guami_default_instance_;
 class RICControlHeader;
 class RICControlHeaderDefaultTypeInternal;
 extern RICControlHeaderDefaultTypeInternal _RICControlHeader_default_instance_;
@@ -62,14 +65,23 @@ extern RicControlGrpcReqDefaultTypeInternal _RicControlGrpcReq_default_instance_
 class RicControlGrpcRsp;
 class RicControlGrpcRspDefaultTypeInternal;
 extern RicControlGrpcRspDefaultTypeInternal _RicControlGrpcRsp_default_instance_;
+class UeId;
+class UeIdDefaultTypeInternal;
+extern UeIdDefaultTypeInternal _UeId_default_instance_;
+class gNBUEID;
+class gNBUEIDDefaultTypeInternal;
+extern gNBUEIDDefaultTypeInternal _gNBUEID_default_instance_;
 }  // namespace rc
 namespace google {
 namespace protobuf {
+template<> ::rc::Guami* Arena::CreateMaybeMessage<::rc::Guami>(Arena*);
 template<> ::rc::RICControlHeader* Arena::CreateMaybeMessage<::rc::RICControlHeader>(Arena*);
 template<> ::rc::RICControlMessage* Arena::CreateMaybeMessage<::rc::RICControlMessage>(Arena*);
 template<> ::rc::RICE2APHeader* Arena::CreateMaybeMessage<::rc::RICE2APHeader>(Arena*);
 template<> ::rc::RicControlGrpcReq* Arena::CreateMaybeMessage<::rc::RicControlGrpcReq>(Arena*);
 template<> ::rc::RicControlGrpcRsp* Arena::CreateMaybeMessage<::rc::RicControlGrpcRsp>(Arena*);
+template<> ::rc::UeId* Arena::CreateMaybeMessage<::rc::UeId>(Arena*);
+template<> ::rc::gNBUEID* Arena::CreateMaybeMessage<::rc::gNBUEID>(Arena*);
 }  // namespace protobuf
 }  // namespace google
 namespace rc {
@@ -318,19 +330,17 @@ class RICControlHeader : public ::google::protobuf::Message /* @@protoc_insertio
 
   // accessors -------------------------------------------------------
 
-  // string UEID = 3;
+  // .rc.UeId UEID = 3;
+  bool has_ueid() const;
   void clear_ueid();
   static const int kUEIDFieldNumber = 3;
-  const ::std::string& ueid() const;
-  void set_ueid(const ::std::string& value);
-  #if LANG_CXX11
-  void set_ueid(::std::string&& value);
-  #endif
-  void set_ueid(const char* value);
-  void set_ueid(const char* value, size_t size);
-  ::std::string* mutable_ueid();
-  ::std::string* release_ueid();
-  void set_allocated_ueid(::std::string* ueid);
+  private:
+  const ::rc::UeId& _internal_ueid() const;
+  public:
+  const ::rc::UeId& ueid() const;
+  ::rc::UeId* release_ueid();
+  ::rc::UeId* mutable_ueid();
+  void set_allocated_ueid(::rc::UeId* ueid);
 
   // int64 ControlStyle = 1;
   void clear_controlstyle();
@@ -348,9 +358,418 @@ class RICControlHeader : public ::google::protobuf::Message /* @@protoc_insertio
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::ArenaStringPtr ueid_;
+  ::rc::UeId* ueid_;
   ::google::protobuf::int64 controlstyle_;
   ::google::protobuf::int64 controlactionid_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class UeId : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:rc.UeId) */ {
+ public:
+  UeId();
+  virtual ~UeId();
+
+  UeId(const UeId& from);
+
+  inline UeId& operator=(const UeId& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  UeId(UeId&& from) noexcept
+    : UeId() {
+    *this = ::std::move(from);
+  }
+
+  inline UeId& operator=(UeId&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UeId& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const UeId* internal_default_instance() {
+    return reinterpret_cast<const UeId*>(
+               &_UeId_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  void Swap(UeId* other);
+  friend void swap(UeId& a, UeId& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline UeId* New() const final {
+    return CreateMaybeMessage<UeId>(NULL);
+  }
+
+  UeId* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<UeId>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const UeId& from);
+  void MergeFrom(const UeId& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UeId* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .rc.gNBUEID GnbUEID = 1;
+  bool has_gnbueid() const;
+  void clear_gnbueid();
+  static const int kGnbUEIDFieldNumber = 1;
+  private:
+  const ::rc::gNBUEID& _internal_gnbueid() const;
+  public:
+  const ::rc::gNBUEID& gnbueid() const;
+  ::rc::gNBUEID* release_gnbueid();
+  ::rc::gNBUEID* mutable_gnbueid();
+  void set_allocated_gnbueid(::rc::gNBUEID* gnbueid);
+
+  // @@protoc_insertion_point(class_scope:rc.UeId)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::rc::gNBUEID* gnbueid_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class gNBUEID : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:rc.gNBUEID) */ {
+ public:
+  gNBUEID();
+  virtual ~gNBUEID();
+
+  gNBUEID(const gNBUEID& from);
+
+  inline gNBUEID& operator=(const gNBUEID& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  gNBUEID(gNBUEID&& from) noexcept
+    : gNBUEID() {
+    *this = ::std::move(from);
+  }
+
+  inline gNBUEID& operator=(gNBUEID&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const gNBUEID& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const gNBUEID* internal_default_instance() {
+    return reinterpret_cast<const gNBUEID*>(
+               &_gNBUEID_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  void Swap(gNBUEID* other);
+  friend void swap(gNBUEID& a, gNBUEID& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline gNBUEID* New() const final {
+    return CreateMaybeMessage<gNBUEID>(NULL);
+  }
+
+  gNBUEID* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<gNBUEID>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const gNBUEID& from);
+  void MergeFrom(const gNBUEID& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(gNBUEID* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int64 gNBCUUEF1APID = 3;
+  int gnbcuuef1apid_size() const;
+  void clear_gnbcuuef1apid();
+  static const int kGNBCUUEF1APIDFieldNumber = 3;
+  ::google::protobuf::int64 gnbcuuef1apid(int index) const;
+  void set_gnbcuuef1apid(int index, ::google::protobuf::int64 value);
+  void add_gnbcuuef1apid(::google::protobuf::int64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      gnbcuuef1apid() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_gnbcuuef1apid();
+
+  // repeated int64 gNBCUCPUEE1APID = 4;
+  int gnbcucpuee1apid_size() const;
+  void clear_gnbcucpuee1apid();
+  static const int kGNBCUCPUEE1APIDFieldNumber = 4;
+  ::google::protobuf::int64 gnbcucpuee1apid(int index) const;
+  void set_gnbcucpuee1apid(int index, ::google::protobuf::int64 value);
+  void add_gnbcucpuee1apid(::google::protobuf::int64 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+      gnbcucpuee1apid() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+      mutable_gnbcucpuee1apid();
+
+  // .rc.Guami guami = 2;
+  bool has_guami() const;
+  void clear_guami();
+  static const int kGuamiFieldNumber = 2;
+  private:
+  const ::rc::Guami& _internal_guami() const;
+  public:
+  const ::rc::Guami& guami() const;
+  ::rc::Guami* release_guami();
+  ::rc::Guami* mutable_guami();
+  void set_allocated_guami(::rc::Guami* guami);
+
+  // int64 amfUENGAPID = 1;
+  void clear_amfuengapid();
+  static const int kAmfUENGAPIDFieldNumber = 1;
+  ::google::protobuf::int64 amfuengapid() const;
+  void set_amfuengapid(::google::protobuf::int64 value);
+
+  // @@protoc_insertion_point(class_scope:rc.gNBUEID)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > gnbcuuef1apid_;
+  mutable int _gnbcuuef1apid_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int64 > gnbcucpuee1apid_;
+  mutable int _gnbcucpuee1apid_cached_byte_size_;
+  ::rc::Guami* guami_;
+  ::google::protobuf::int64 amfuengapid_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_rc_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class Guami : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:rc.Guami) */ {
+ public:
+  Guami();
+  virtual ~Guami();
+
+  Guami(const Guami& from);
+
+  inline Guami& operator=(const Guami& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Guami(Guami&& from) noexcept
+    : Guami() {
+    *this = ::std::move(from);
+  }
+
+  inline Guami& operator=(Guami&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Guami& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Guami* internal_default_instance() {
+    return reinterpret_cast<const Guami*>(
+               &_Guami_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  void Swap(Guami* other);
+  friend void swap(Guami& a, Guami& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Guami* New() const final {
+    return CreateMaybeMessage<Guami>(NULL);
+  }
+
+  Guami* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<Guami>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const Guami& from);
+  void MergeFrom(const Guami& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Guami* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string pLMNIdentity = 1;
+  void clear_plmnidentity();
+  static const int kPLMNIdentityFieldNumber = 1;
+  const ::std::string& plmnidentity() const;
+  void set_plmnidentity(const ::std::string& value);
+  #if LANG_CXX11
+  void set_plmnidentity(::std::string&& value);
+  #endif
+  void set_plmnidentity(const char* value);
+  void set_plmnidentity(const char* value, size_t size);
+  ::std::string* mutable_plmnidentity();
+  ::std::string* release_plmnidentity();
+  void set_allocated_plmnidentity(::std::string* plmnidentity);
+
+  // string aMFRegionID = 2;
+  void clear_amfregionid();
+  static const int kAMFRegionIDFieldNumber = 2;
+  const ::std::string& amfregionid() const;
+  void set_amfregionid(const ::std::string& value);
+  #if LANG_CXX11
+  void set_amfregionid(::std::string&& value);
+  #endif
+  void set_amfregionid(const char* value);
+  void set_amfregionid(const char* value, size_t size);
+  ::std::string* mutable_amfregionid();
+  ::std::string* release_amfregionid();
+  void set_allocated_amfregionid(::std::string* amfregionid);
+
+  // string aMFSetID = 3;
+  void clear_amfsetid();
+  static const int kAMFSetIDFieldNumber = 3;
+  const ::std::string& amfsetid() const;
+  void set_amfsetid(const ::std::string& value);
+  #if LANG_CXX11
+  void set_amfsetid(::std::string&& value);
+  #endif
+  void set_amfsetid(const char* value);
+  void set_amfsetid(const char* value, size_t size);
+  ::std::string* mutable_amfsetid();
+  ::std::string* release_amfsetid();
+  void set_allocated_amfsetid(::std::string* amfsetid);
+
+  // string aMFPointer = 4;
+  void clear_amfpointer();
+  static const int kAMFPointerFieldNumber = 4;
+  const ::std::string& amfpointer() const;
+  void set_amfpointer(const ::std::string& value);
+  #if LANG_CXX11
+  void set_amfpointer(::std::string&& value);
+  #endif
+  void set_amfpointer(const char* value);
+  void set_amfpointer(const char* value, size_t size);
+  ::std::string* mutable_amfpointer();
+  ::std::string* release_amfpointer();
+  void set_allocated_amfpointer(::std::string* amfpointer);
+
+  // @@protoc_insertion_point(class_scope:rc.Guami)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr plmnidentity_;
+  ::google::protobuf::internal::ArenaStringPtr amfregionid_;
+  ::google::protobuf::internal::ArenaStringPtr amfsetid_;
+  ::google::protobuf::internal::ArenaStringPtr amfpointer_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_rc_2eproto::TableStruct;
 };
@@ -391,7 +810,7 @@ class RICControlMessage : public ::google::protobuf::Message /* @@protoc_inserti
                &_RICControlMessage_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    5;
 
   void Swap(RICControlMessage* other);
   friend void swap(RICControlMessage& a, RICControlMessage& b) {
@@ -509,7 +928,7 @@ class RicControlGrpcReq : public ::google::protobuf::Message /* @@protoc_inserti
                &_RicControlGrpcReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    6;
 
   void Swap(RicControlGrpcReq* other);
   friend void swap(RicControlGrpcReq& a, RicControlGrpcReq& b) {
@@ -696,7 +1115,7 @@ class RicControlGrpcRsp : public ::google::protobuf::Message /* @@protoc_inserti
                &_RicControlGrpcRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    7;
 
   void Swap(RicControlGrpcRsp* other);
   friend void swap(RicControlGrpcRsp& a, RicControlGrpcRsp& b) {
@@ -848,57 +1267,464 @@ inline void RICControlHeader::set_controlactionid(::google::protobuf::int64 valu
   // @@protoc_insertion_point(field_set:rc.RICControlHeader.ControlActionId)
 }
 
-// string UEID = 3;
+// .rc.UeId UEID = 3;
+inline bool RICControlHeader::has_ueid() const {
+  return this != internal_default_instance() && ueid_ != NULL;
+}
 inline void RICControlHeader::clear_ueid() {
-  ueid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == NULL && ueid_ != NULL) {
+    delete ueid_;
+  }
+  ueid_ = NULL;
 }
-inline const ::std::string& RICControlHeader::ueid() const {
+inline const ::rc::UeId& RICControlHeader::_internal_ueid() const {
+  return *ueid_;
+}
+inline const ::rc::UeId& RICControlHeader::ueid() const {
+  const ::rc::UeId* p = ueid_;
   // @@protoc_insertion_point(field_get:rc.RICControlHeader.UEID)
-  return ueid_.GetNoArena();
+  return p != NULL ? *p : *reinterpret_cast<const ::rc::UeId*>(
+      &::rc::_UeId_default_instance_);
 }
-inline void RICControlHeader::set_ueid(const ::std::string& value) {
-  
-  ueid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:rc.RICControlHeader.UEID)
-}
-#if LANG_CXX11
-inline void RICControlHeader::set_ueid(::std::string&& value) {
-  
-  ueid_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:rc.RICControlHeader.UEID)
-}
-#endif
-inline void RICControlHeader::set_ueid(const char* value) {
-  GOOGLE_DCHECK(value != NULL);
-  
-  ueid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:rc.RICControlHeader.UEID)
-}
-inline void RICControlHeader::set_ueid(const char* value, size_t size) {
-  
-  ueid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:rc.RICControlHeader.UEID)
-}
-inline ::std::string* RICControlHeader::mutable_ueid() {
-  
-  // @@protoc_insertion_point(field_mutable:rc.RICControlHeader.UEID)
-  return ueid_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* RICControlHeader::release_ueid() {
+inline ::rc::UeId* RICControlHeader::release_ueid() {
   // @@protoc_insertion_point(field_release:rc.RICControlHeader.UEID)
   
-  return ueid_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::rc::UeId* temp = ueid_;
+  ueid_ = NULL;
+  return temp;
 }
-inline void RICControlHeader::set_allocated_ueid(::std::string* ueid) {
-  if (ueid != NULL) {
+inline ::rc::UeId* RICControlHeader::mutable_ueid() {
+  
+  if (ueid_ == NULL) {
+    auto* p = CreateMaybeMessage<::rc::UeId>(GetArenaNoVirtual());
+    ueid_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:rc.RICControlHeader.UEID)
+  return ueid_;
+}
+inline void RICControlHeader::set_allocated_ueid(::rc::UeId* ueid) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete ueid_;
+  }
+  if (ueid) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      ueid = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, ueid, submessage_arena);
+    }
     
   } else {
     
   }
-  ueid_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ueid);
+  ueid_ = ueid;
   // @@protoc_insertion_point(field_set_allocated:rc.RICControlHeader.UEID)
+}
+
+// -------------------------------------------------------------------
+
+// UeId
+
+// .rc.gNBUEID GnbUEID = 1;
+inline bool UeId::has_gnbueid() const {
+  return this != internal_default_instance() && gnbueid_ != NULL;
+}
+inline void UeId::clear_gnbueid() {
+  if (GetArenaNoVirtual() == NULL && gnbueid_ != NULL) {
+    delete gnbueid_;
+  }
+  gnbueid_ = NULL;
+}
+inline const ::rc::gNBUEID& UeId::_internal_gnbueid() const {
+  return *gnbueid_;
+}
+inline const ::rc::gNBUEID& UeId::gnbueid() const {
+  const ::rc::gNBUEID* p = gnbueid_;
+  // @@protoc_insertion_point(field_get:rc.UeId.GnbUEID)
+  return p != NULL ? *p : *reinterpret_cast<const ::rc::gNBUEID*>(
+      &::rc::_gNBUEID_default_instance_);
+}
+inline ::rc::gNBUEID* UeId::release_gnbueid() {
+  // @@protoc_insertion_point(field_release:rc.UeId.GnbUEID)
+  
+  ::rc::gNBUEID* temp = gnbueid_;
+  gnbueid_ = NULL;
+  return temp;
+}
+inline ::rc::gNBUEID* UeId::mutable_gnbueid() {
+  
+  if (gnbueid_ == NULL) {
+    auto* p = CreateMaybeMessage<::rc::gNBUEID>(GetArenaNoVirtual());
+    gnbueid_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:rc.UeId.GnbUEID)
+  return gnbueid_;
+}
+inline void UeId::set_allocated_gnbueid(::rc::gNBUEID* gnbueid) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete gnbueid_;
+  }
+  if (gnbueid) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      gnbueid = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, gnbueid, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  gnbueid_ = gnbueid;
+  // @@protoc_insertion_point(field_set_allocated:rc.UeId.GnbUEID)
+}
+
+// -------------------------------------------------------------------
+
+// gNBUEID
+
+// int64 amfUENGAPID = 1;
+inline void gNBUEID::clear_amfuengapid() {
+  amfuengapid_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 gNBUEID::amfuengapid() const {
+  // @@protoc_insertion_point(field_get:rc.gNBUEID.amfUENGAPID)
+  return amfuengapid_;
+}
+inline void gNBUEID::set_amfuengapid(::google::protobuf::int64 value) {
+  
+  amfuengapid_ = value;
+  // @@protoc_insertion_point(field_set:rc.gNBUEID.amfUENGAPID)
+}
+
+// .rc.Guami guami = 2;
+inline bool gNBUEID::has_guami() const {
+  return this != internal_default_instance() && guami_ != NULL;
+}
+inline void gNBUEID::clear_guami() {
+  if (GetArenaNoVirtual() == NULL && guami_ != NULL) {
+    delete guami_;
+  }
+  guami_ = NULL;
+}
+inline const ::rc::Guami& gNBUEID::_internal_guami() const {
+  return *guami_;
+}
+inline const ::rc::Guami& gNBUEID::guami() const {
+  const ::rc::Guami* p = guami_;
+  // @@protoc_insertion_point(field_get:rc.gNBUEID.guami)
+  return p != NULL ? *p : *reinterpret_cast<const ::rc::Guami*>(
+      &::rc::_Guami_default_instance_);
+}
+inline ::rc::Guami* gNBUEID::release_guami() {
+  // @@protoc_insertion_point(field_release:rc.gNBUEID.guami)
+  
+  ::rc::Guami* temp = guami_;
+  guami_ = NULL;
+  return temp;
+}
+inline ::rc::Guami* gNBUEID::mutable_guami() {
+  
+  if (guami_ == NULL) {
+    auto* p = CreateMaybeMessage<::rc::Guami>(GetArenaNoVirtual());
+    guami_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:rc.gNBUEID.guami)
+  return guami_;
+}
+inline void gNBUEID::set_allocated_guami(::rc::Guami* guami) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete guami_;
+  }
+  if (guami) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      guami = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, guami, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  guami_ = guami;
+  // @@protoc_insertion_point(field_set_allocated:rc.gNBUEID.guami)
+}
+
+// repeated int64 gNBCUUEF1APID = 3;
+inline int gNBUEID::gnbcuuef1apid_size() const {
+  return gnbcuuef1apid_.size();
+}
+inline void gNBUEID::clear_gnbcuuef1apid() {
+  gnbcuuef1apid_.Clear();
+}
+inline ::google::protobuf::int64 gNBUEID::gnbcuuef1apid(int index) const {
+  // @@protoc_insertion_point(field_get:rc.gNBUEID.gNBCUUEF1APID)
+  return gnbcuuef1apid_.Get(index);
+}
+inline void gNBUEID::set_gnbcuuef1apid(int index, ::google::protobuf::int64 value) {
+  gnbcuuef1apid_.Set(index, value);
+  // @@protoc_insertion_point(field_set:rc.gNBUEID.gNBCUUEF1APID)
+}
+inline void gNBUEID::add_gnbcuuef1apid(::google::protobuf::int64 value) {
+  gnbcuuef1apid_.Add(value);
+  // @@protoc_insertion_point(field_add:rc.gNBUEID.gNBCUUEF1APID)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+gNBUEID::gnbcuuef1apid() const {
+  // @@protoc_insertion_point(field_list:rc.gNBUEID.gNBCUUEF1APID)
+  return gnbcuuef1apid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+gNBUEID::mutable_gnbcuuef1apid() {
+  // @@protoc_insertion_point(field_mutable_list:rc.gNBUEID.gNBCUUEF1APID)
+  return &gnbcuuef1apid_;
+}
+
+// repeated int64 gNBCUCPUEE1APID = 4;
+inline int gNBUEID::gnbcucpuee1apid_size() const {
+  return gnbcucpuee1apid_.size();
+}
+inline void gNBUEID::clear_gnbcucpuee1apid() {
+  gnbcucpuee1apid_.Clear();
+}
+inline ::google::protobuf::int64 gNBUEID::gnbcucpuee1apid(int index) const {
+  // @@protoc_insertion_point(field_get:rc.gNBUEID.gNBCUCPUEE1APID)
+  return gnbcucpuee1apid_.Get(index);
+}
+inline void gNBUEID::set_gnbcucpuee1apid(int index, ::google::protobuf::int64 value) {
+  gnbcucpuee1apid_.Set(index, value);
+  // @@protoc_insertion_point(field_set:rc.gNBUEID.gNBCUCPUEE1APID)
+}
+inline void gNBUEID::add_gnbcucpuee1apid(::google::protobuf::int64 value) {
+  gnbcucpuee1apid_.Add(value);
+  // @@protoc_insertion_point(field_add:rc.gNBUEID.gNBCUCPUEE1APID)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int64 >&
+gNBUEID::gnbcucpuee1apid() const {
+  // @@protoc_insertion_point(field_list:rc.gNBUEID.gNBCUCPUEE1APID)
+  return gnbcucpuee1apid_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int64 >*
+gNBUEID::mutable_gnbcucpuee1apid() {
+  // @@protoc_insertion_point(field_mutable_list:rc.gNBUEID.gNBCUCPUEE1APID)
+  return &gnbcucpuee1apid_;
+}
+
+// -------------------------------------------------------------------
+
+// Guami
+
+// string pLMNIdentity = 1;
+inline void Guami::clear_plmnidentity() {
+  plmnidentity_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Guami::plmnidentity() const {
+  // @@protoc_insertion_point(field_get:rc.Guami.pLMNIdentity)
+  return plmnidentity_.GetNoArena();
+}
+inline void Guami::set_plmnidentity(const ::std::string& value) {
+  
+  plmnidentity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:rc.Guami.pLMNIdentity)
+}
+#if LANG_CXX11
+inline void Guami::set_plmnidentity(::std::string&& value) {
+  
+  plmnidentity_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:rc.Guami.pLMNIdentity)
+}
+#endif
+inline void Guami::set_plmnidentity(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  plmnidentity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:rc.Guami.pLMNIdentity)
+}
+inline void Guami::set_plmnidentity(const char* value, size_t size) {
+  
+  plmnidentity_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:rc.Guami.pLMNIdentity)
+}
+inline ::std::string* Guami::mutable_plmnidentity() {
+  
+  // @@protoc_insertion_point(field_mutable:rc.Guami.pLMNIdentity)
+  return plmnidentity_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Guami::release_plmnidentity() {
+  // @@protoc_insertion_point(field_release:rc.Guami.pLMNIdentity)
+  
+  return plmnidentity_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Guami::set_allocated_plmnidentity(::std::string* plmnidentity) {
+  if (plmnidentity != NULL) {
+    
+  } else {
+    
+  }
+  plmnidentity_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), plmnidentity);
+  // @@protoc_insertion_point(field_set_allocated:rc.Guami.pLMNIdentity)
+}
+
+// string aMFRegionID = 2;
+inline void Guami::clear_amfregionid() {
+  amfregionid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Guami::amfregionid() const {
+  // @@protoc_insertion_point(field_get:rc.Guami.aMFRegionID)
+  return amfregionid_.GetNoArena();
+}
+inline void Guami::set_amfregionid(const ::std::string& value) {
+  
+  amfregionid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:rc.Guami.aMFRegionID)
+}
+#if LANG_CXX11
+inline void Guami::set_amfregionid(::std::string&& value) {
+  
+  amfregionid_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:rc.Guami.aMFRegionID)
+}
+#endif
+inline void Guami::set_amfregionid(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  amfregionid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:rc.Guami.aMFRegionID)
+}
+inline void Guami::set_amfregionid(const char* value, size_t size) {
+  
+  amfregionid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:rc.Guami.aMFRegionID)
+}
+inline ::std::string* Guami::mutable_amfregionid() {
+  
+  // @@protoc_insertion_point(field_mutable:rc.Guami.aMFRegionID)
+  return amfregionid_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Guami::release_amfregionid() {
+  // @@protoc_insertion_point(field_release:rc.Guami.aMFRegionID)
+  
+  return amfregionid_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Guami::set_allocated_amfregionid(::std::string* amfregionid) {
+  if (amfregionid != NULL) {
+    
+  } else {
+    
+  }
+  amfregionid_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), amfregionid);
+  // @@protoc_insertion_point(field_set_allocated:rc.Guami.aMFRegionID)
+}
+
+// string aMFSetID = 3;
+inline void Guami::clear_amfsetid() {
+  amfsetid_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Guami::amfsetid() const {
+  // @@protoc_insertion_point(field_get:rc.Guami.aMFSetID)
+  return amfsetid_.GetNoArena();
+}
+inline void Guami::set_amfsetid(const ::std::string& value) {
+  
+  amfsetid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:rc.Guami.aMFSetID)
+}
+#if LANG_CXX11
+inline void Guami::set_amfsetid(::std::string&& value) {
+  
+  amfsetid_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:rc.Guami.aMFSetID)
+}
+#endif
+inline void Guami::set_amfsetid(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  amfsetid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:rc.Guami.aMFSetID)
+}
+inline void Guami::set_amfsetid(const char* value, size_t size) {
+  
+  amfsetid_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:rc.Guami.aMFSetID)
+}
+inline ::std::string* Guami::mutable_amfsetid() {
+  
+  // @@protoc_insertion_point(field_mutable:rc.Guami.aMFSetID)
+  return amfsetid_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Guami::release_amfsetid() {
+  // @@protoc_insertion_point(field_release:rc.Guami.aMFSetID)
+  
+  return amfsetid_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Guami::set_allocated_amfsetid(::std::string* amfsetid) {
+  if (amfsetid != NULL) {
+    
+  } else {
+    
+  }
+  amfsetid_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), amfsetid);
+  // @@protoc_insertion_point(field_set_allocated:rc.Guami.aMFSetID)
+}
+
+// string aMFPointer = 4;
+inline void Guami::clear_amfpointer() {
+  amfpointer_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Guami::amfpointer() const {
+  // @@protoc_insertion_point(field_get:rc.Guami.aMFPointer)
+  return amfpointer_.GetNoArena();
+}
+inline void Guami::set_amfpointer(const ::std::string& value) {
+  
+  amfpointer_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:rc.Guami.aMFPointer)
+}
+#if LANG_CXX11
+inline void Guami::set_amfpointer(::std::string&& value) {
+  
+  amfpointer_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:rc.Guami.aMFPointer)
+}
+#endif
+inline void Guami::set_amfpointer(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  amfpointer_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:rc.Guami.aMFPointer)
+}
+inline void Guami::set_amfpointer(const char* value, size_t size) {
+  
+  amfpointer_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:rc.Guami.aMFPointer)
+}
+inline ::std::string* Guami::mutable_amfpointer() {
+  
+  // @@protoc_insertion_point(field_mutable:rc.Guami.aMFPointer)
+  return amfpointer_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Guami::release_amfpointer() {
+  // @@protoc_insertion_point(field_release:rc.Guami.aMFPointer)
+  
+  return amfpointer_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Guami::set_allocated_amfpointer(::std::string* amfpointer) {
+  if (amfpointer != NULL) {
+    
+  } else {
+    
+  }
+  amfpointer_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), amfpointer);
+  // @@protoc_insertion_point(field_set_allocated:rc.Guami.aMFPointer)
 }
 
 // -------------------------------------------------------------------
@@ -1385,6 +2211,12 @@ inline void RicControlGrpcRsp::set_allocated_description(::std::string* descript
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
