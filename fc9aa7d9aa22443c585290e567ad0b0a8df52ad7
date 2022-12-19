@@ -1,0 +1,8 @@
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Code-Review+1: Deepanshu Karnwal <deepanshu.k@hcl.com>
+Code-Review+2: Alexandre Huff <alexandrehuff@utfpr.edu.br>
+Submitted-by: Alexandre Huff <alexandrehuff@utfpr.edu.br>
+Submitted-at: Mon, 19 Dec 2022 14:00:48 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/ric-app/ts/+/10191
+Project: ric-app/ts
+Branch: refs/heads/master
