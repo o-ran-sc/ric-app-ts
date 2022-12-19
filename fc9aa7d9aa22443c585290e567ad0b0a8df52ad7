@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f200b923_e466d5c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000971
+      },
+      "writtenOn": "2022-12-19T11:47:35Z",
+      "side": 1,
+      "message": "Pushed a fix for RICAPP-205 (TS and QP communication).\n\nKindly review and merge.",
+      "revId": "fc9aa7d9aa22443c585290e567ad0b0a8df52ad7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
