@@ -9,6 +9,11 @@
 Traffic Steering xAPP
 =====================
 
+2023 Jan 6 Version 1.2.5
+--------------------------
+        Improve error handling on rest api
+        Fix communication between TS and QP xApp
+
 2022 Jun 29 Version 1.2.4
 --------------------------
         Fix Proto file
